@@ -7,8 +7,8 @@ CFLAGS=-O2 -Wall -g
 
 all: keyboard printer
 
-keyboard: keyboard.c
-	$(CC) -o $@ $< $(CFLAGS) -lpthread
+keyboard: src/keyboard/keyboard.c
+	$(CC) -o src/$@/$@ $< $(CFLAGS) -lpthread
 
-printer: printer.c
-	$(CC) -o $@ $< $(CFLAGS) -lpthread
+printer: src/printer/printer.c
+	$(CC) -o src/$@/$@ $< $(CFLAGS) -lpthread
