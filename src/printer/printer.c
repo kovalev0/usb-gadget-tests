@@ -784,7 +784,7 @@ bool ep0_request(int fd, struct usb_raw_control_event *event,
 }
 
 void ep0_loop(int fd) {
-	while (true) {
+	for (int i=0; i < 12; i++) {
 		struct usb_raw_control_event event;
 		event.inner.type = 0;
 		event.inner.length = sizeof(event.ctrl);
