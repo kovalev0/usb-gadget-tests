@@ -1,0 +1,255 @@
+event: connect, length: 0
+ep #0:
+  name: ep1in-bulk
+  addr: 1
+  type: ___ blk ___
+  dir : in  ___
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #1:
+  name: ep2out-bulk
+  addr: 2
+  type: ___ blk ___
+  dir : ___ out
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #2:
+  name: ep5in-int
+  addr: 5
+  type: ___ ___ int
+  dir : in  ___
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #3:
+  name: ep6in-bulk
+  addr: 6
+  type: ___ blk ___
+  dir : in  ___
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #4:
+  name: ep7out-bulk
+  addr: 7
+  type: ___ blk ___
+  dir : ___ out
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #5:
+  name: ep10in-int
+  addr: 10
+  type: ___ ___ int
+  dir : in  ___
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #6:
+  name: ep11in-bulk
+  addr: 11
+  type: ___ blk ___
+  dir : in  ___
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #7:
+  name: ep12out-bulk
+  addr: 12
+  type: ___ blk ___
+  dir : ___ out
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #8:
+  name: ep15in-int
+  addr: 15
+  type: ___ ___ int
+  dir : in  ___
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #9:
+  name: ep1out-bulk
+  addr: 1
+  type: ___ blk ___
+  dir : ___ out
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #10:
+  name: ep2in-bulk
+  addr: 2
+  type: ___ blk ___
+  dir : in  ___
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #11:
+  name: ep-aout
+  addr: 255
+  type: ___ blk int
+  dir : ___ out
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #12:
+  name: ep-bin
+  addr: 255
+  type: ___ blk int
+  dir : in  ___
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #13:
+  name: ep-cout
+  addr: 255
+  type: ___ blk int
+  dir : ___ out
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #14:
+  name: ep-dout
+  addr: 255
+  type: ___ blk int
+  dir : ___ out
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #15:
+  name: ep-ein
+  addr: 255
+  type: ___ blk int
+  dir : in  ___
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #16:
+  name: ep-fout
+  addr: 255
+  type: ___ blk int
+  dir : ___ out
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #17:
+  name: ep-gin
+  addr: 255
+  type: ___ blk int
+  dir : in  ___
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #18:
+  name: ep-hout
+  addr: 255
+  type: ___ blk int
+  dir : ___ out
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #19:
+  name: ep-iout
+  addr: 255
+  type: ___ blk int
+  dir : ___ out
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #20:
+  name: ep-jin
+  addr: 255
+  type: ___ blk int
+  dir : in  ___
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #21:
+  name: ep-kout
+  addr: 255
+  type: ___ blk int
+  dir : ___ out
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #22:
+  name: ep-lin
+  addr: 255
+  type: ___ blk int
+  dir : in  ___
+  maxpacket_limit: 65535
+  max_streams: 16
+ep #23:
+  name: ep-mout
+  addr: 255
+  type: ___ blk int
+  dir : ___ out
+  maxpacket_limit: 65535
+  max_streams: 16
+ep_int_in: addr = 5
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x100, wIndex: 0x0, wLength: 64
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_DEVICE
+ep0: transferred 18 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x100, wIndex: 0x0, wLength: 18
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_DEVICE
+ep0: transferred 18 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x200, wIndex: 0x0, wLength: 9
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_CONFIG
+config->wTotalLength: 34
+ep0: transferred 9 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x200, wIndex: 0x0, wLength: 34
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_CONFIG
+config->wTotalLength: 34
+ep0: transferred 34 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x300, wIndex: 0x0, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x301, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x302, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x0 (OUT), bRequest: 0x9, wValue: 0x1, wIndex: 0x0, wLength: 0
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_SET_CONFIGURATION
+ep0: ep_int_in enabled: 2
+ep0: spawned ep_int_in thread
+ep0: transferred 0 bytes (out)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x303, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x304, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x302, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x21 (OUT), bRequest: 0xa, wValue: 0x0, wIndex: 0x0, wLength: 0
+  type = USB_TYPE_CLASS
+  req = HID_REQ_SET_IDLE
+ep0: transferred 0 bytes (out)
+event: control, length: 8
+  bRequestType: 0x81 (IN), bRequest: 0x6, wValue: 0x2200, wIndex: 0x0, wLength: 65
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  descriptor = HID_DT_REPORT
+ep0: transferred 65 bytes (in)
+event: control, length: 8
+  bRequestType: 0x21 (OUT), bRequest: 0x9, wValue: 0x200, wIndex: 0x0, wLength: 1
+  type = USB_TYPE_CLASS
+  req = HID_REQ_SET_REPORT
+ep0: transferred 1 bytes (out)
