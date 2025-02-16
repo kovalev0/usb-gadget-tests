@@ -16,6 +16,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <stdatomic.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -698,6 +699,7 @@ struct usb_raw_int_io {
 int ep_int_in = -1;
 pthread_t ep_int_in_thread;
 bool ep_int_in_thread_spawned = false;
+atomic_bool key_en = ATOMIC_VAR_INIT(false);
 
 void *ep_int_in_loop(void *arg) {
 	int fd = (int)(long)arg;
@@ -707,6 +709,7 @@ void *ep_int_in_loop(void *arg) {
 	io.inner.flags = 0;
 	io.inner.length = 8;
 
+	while (!atomic_load(&key_en));
 	while (true) {
 		memcpy(&io.inner.data[0],
 				"\x00\x00\x1b\x00\x00\x00\x00\x00", 8);
@@ -831,6 +834,13 @@ bool ep0_request(int fd, struct usb_raw_control_event *event,
 
 void ep0_loop(int fd) {
 	for (int i=0; i < 15; i++) {
+		if (i == 14) {
+			// Enable keycode sending
+			atomic_store(&key_en, true);
+			// Waiting for the completion sending
+			sleep(1);
+			break;
+		}
 		struct usb_raw_control_event event;
 		event.inner.type = 0;
 		event.inner.length = sizeof(event.ctrl);
