@@ -248,8 +248,3 @@ event: control, length: 8
   req = USB_REQ_GET_DESCRIPTOR
   descriptor = HID_DT_REPORT
 ep0: transferred 65 bytes (in)
-event: control, length: 8
-  bRequestType: 0x21 (OUT), bRequest: 0x9, wValue: 0x200, wIndex: 0x0, wLength: 1
-  type = USB_TYPE_CLASS
-  req = HID_REQ_SET_REPORT
-ep0: transferred 1 bytes (out)

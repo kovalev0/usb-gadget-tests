@@ -722,8 +722,21 @@ void *ep_int_in_loop(void *arg) {
 			perror("usb_raw_ep_write_may_fail()");
 			exit(EXIT_FAILURE);
 		}
+		// printf("ep_int_in: key down: %d\n", rv);
 
-		sleep(1);
+		memcpy(&io.inner.data[0],
+				"\x00\x00\x00\x00\x00\x00\x00\x00", 8);
+		rv = usb_raw_ep_write_may_fail(fd, (struct usb_raw_ep_io *)&io);
+		if (rv < 0 && errno == ESHUTDOWN) {
+			printf("ep_int_in: device was likely reset, exiting\n");
+			break;
+		} else if (rv < 0) {
+			perror("usb_raw_ep_write_may_fail()");
+			exit(EXIT_FAILURE);
+		}
+		// printf("ep_int_in: key up: %d\n", rv);
+
+		usleep(400000);
 	}
 
 	return NULL;
