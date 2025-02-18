@@ -651,6 +651,8 @@ void process_eps_info(int fd) {
 	memset(&info, 0, sizeof(info));
 
 	int num = usb_raw_eps_info(fd, &info);
+// debug
+/*
 	for (int i = 0; i < num; i++) {
 		printf("ep #%d:\n", i);
 		printf("  name: %s\n", &info.eps[i].name[0]);
@@ -667,6 +669,7 @@ void process_eps_info(int fd) {
 		printf("  max_streams: %u\n", info.eps[i].limits.max_streams);
 	}
 
+*/
 	for (int i = 0; i < num; i++) {
 		if (assign_ep_address(&info.eps[i], &usb_endpoint))
 			continue;
@@ -674,7 +677,7 @@ void process_eps_info(int fd) {
 
 	int ep_int_in_addr = usb_endpoint_num(&usb_endpoint);
 	assert(ep_int_in_addr != 0);
-	printf("ep_int_in: addr = %u\n", ep_int_in_addr);
+//	printf("ep_int_in: addr = %u\n", ep_int_in_addr);
 }
 
 /*----------------------------------------------------------------------*/
