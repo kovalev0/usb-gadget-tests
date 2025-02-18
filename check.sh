@@ -36,7 +36,13 @@ while IFS= read -r test_name; do
     fi
 
     echo "Running test: $test_name"
-    "$test_script"
+    timeout 30 "$test_script"
+    exit_code=$?
+
+    if [[ $exit_code -eq 124 ]]; then
+        echo -e "$test_name \e[31m[Timeout]\e[0m"
+        continue
+    fi
 
     if [[ ! -f "$result_file" ]]; then
         echo -e "$test_name \e[31m[Failed]\e[0m (No result file)"
