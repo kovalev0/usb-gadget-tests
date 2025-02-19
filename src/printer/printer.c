@@ -8,6 +8,8 @@
 // See https://github.com/xairy/raw-gadget for details.
 //
 // Wei Ming Chen <wmchen.aristo@gmail.com>
+//
+// Vasiliy Kovalev <kovalev@altlinux.org>
 
 #include <assert.h>
 #include <fcntl.h>

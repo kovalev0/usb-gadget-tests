@@ -4,6 +4,8 @@
 //
 // Copyright 2019 syzkaller project authors. All rights reserved.
 // Use of this source code is governed by Apache 2 LICENSE.
+//
+// Vasiliy Kovalev <kovalev@altlinux.org>
 
 #include <assert.h>
 #include <fcntl.h>
