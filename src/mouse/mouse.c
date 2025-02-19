@@ -729,6 +729,14 @@ void *ep_int_in_loop(void *arg) {
 		{0x00, 0xFF, 0xFF, 0x00}  // Position 2
 	};
 	int num_coords  = 3;
+
+	// Scroll state packets
+	char scroll[2][4] = {
+		{0x00, 0x00, 0x00, 0x01}, // Scroll up
+		{0x00, 0x00, 0x00, 0xFF}  // Scroll down
+	};
+	int num_scroll  = 2;
+
 	int num_attempt = 3;
 
 	while (true) {
@@ -747,6 +755,15 @@ void *ep_int_in_loop(void *arg) {
 
 				// Send cursor movement
 				memcpy(io.inner.data, coords[i], 4);
+				if(ep_int_in_send_packet(fd,&io))
+					continue;
+			}
+			for (int i = 0; i < num_scroll; i++) {
+				// 100 ms delay
+				usleep(100000);
+
+				// Send scroll state
+				memcpy(io.inner.data, scroll[i], 4);
 				if(ep_int_in_send_packet(fd,&io))
 					continue;
 			}
