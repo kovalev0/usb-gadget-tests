@@ -25,5 +25,11 @@ $ sudo ./check.sh
 ```
 The script reads the list of tests from `tests/list.txt`, executes (`run.sh`) each test, and compares its output to the expected result (`result.out`). If the output differs, an error message and `diff` output are displayed.
 
+#### Test Execution Status
+
+- **[Ok]** - Success
+- **[Failed]** - Test execution failed
+- **[Timeout]** - Test failed due to exceeding the 30-second execution limit
+
 ## License
 This project is licensed under the Apache License 2.0.
