@@ -38,4 +38,4 @@ src/%.o: src/%.c src/usb_gadget_tests.h
 
 # Clean up generated files
 clean:
-	rm -f $(COMMON_OBJ) src/*/*.o $(foreach target,$(TARGETS),src/$(target)/$(target))
+	rm -f $(COMMON_OBJ) src/*/*.o tests/*/result $(foreach target,$(TARGETS),src/$(target)/$(target))
