@@ -168,3 +168,46 @@ void log_event(struct usb_raw_event *event) {
 }
 
 /*----------------------------------------------------------------------*/
+
+// Open the first available /dev/ttyUSB* device
+// Returns file descriptor on success, -1 on failure
+// Waits up to 3 seconds for a device to appear
+int usb_tty_open(void) {
+	int tty_fd = -1;
+	glob_t glob_result;
+	time_t start_time = time(NULL);
+	const int timeout_sec = 3;
+
+	while (tty_fd < 0 && difftime(time(NULL), start_time)
+							< timeout_sec) {
+		if (glob("/dev/ttyUSB*", 0, NULL, &glob_result) == 0) {
+			for (size_t i = 0; i < glob_result.gl_pathc; i++) {
+				tty_fd = open(glob_result.gl_pathv[i],
+					O_RDWR | O_NOCTTY | O_NONBLOCK);
+				if (tty_fd >= 0) {
+					// printf("Successfully opened %s\n",
+					//	glob_result.gl_pathv[i]);
+					break;
+				}
+			}
+			globfree(&glob_result);
+		}
+
+		if (tty_fd < 0)
+			usleep(100000); // 100 ms
+	}
+
+	if (tty_fd < 0)
+		perror("Failed to open any /dev/ttyUSB* device\n");
+
+	return tty_fd;
+}
+
+// Close a ttyUSB file descriptor
+void usb_tty_close(int tty_fd) {
+	if (tty_fd >= 0) {
+		close(tty_fd);
+	}
+}
+
+/*----------------------------------------------------------------------*/

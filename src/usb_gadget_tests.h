@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <glob.h>
 #include <pthread.h>
 #include <stdatomic.h>
 #include <stdbool.h>
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <sys/types.h>
@@ -132,6 +134,11 @@ void log_event(struct usb_raw_event *event);
 /*----------------------------------------------------------------------*/
 
 void log_control_request(struct usb_ctrlrequest *ctrl);
+
+/*----------------------------------------------------------------------*/
+
+int  usb_tty_open(void);
+void usb_tty_close(int tty_fd);
 
 /*----------------------------------------------------------------------*/
 
