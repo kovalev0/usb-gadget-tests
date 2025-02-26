@@ -1,3 +1,4 @@
 keyboard
 printer
 mouse
+ethernet
