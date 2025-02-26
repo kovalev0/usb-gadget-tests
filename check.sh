@@ -28,10 +28,16 @@ while IFS= read -r test_name; do
     test_dir="tests/$test_name"
     test_script="$test_dir/run.sh"
     result_file="$test_dir/result"
-    expected_result="$test_dir/result.out"
+    result_outs_dir="$test_dir/result.outs"
 
     if [[ ! -x "$test_script" ]]; then
         echo "Skipping $test_name: $test_script is not executable or missing."
+        continue
+    fi
+
+    # Check if result.outs directory exists and contains at least out.1
+    if [[ ! -d "$result_outs_dir" || ! -f "$result_outs_dir/out.1" ]]; then
+        echo "Skipping $test_name: $result_outs_dir/out.1 is missing."
         continue
     fi
 
@@ -49,11 +55,20 @@ while IFS= read -r test_name; do
         continue
     fi
 
-    if diff -q "$result_file" "$expected_result" &>/dev/null; then
+    # Compare result_file with each expected result in result.outs
+    match_found=false
+    for expected_result in "$result_outs_dir"/out.*; do
+        if diff -q "$result_file" "$expected_result" &>/dev/null; then
+            match_found=true
+            break
+        fi
+    done
+
+    if [[ "$match_found" == true ]]; then
         echo -e "$test_name \e[32m[Ok]\e[0m"
     else
         echo -e "$test_name \e[31m[Failed]\e[0m"
-        diff "$expected_result" "$result_file"
+        diff "$result_outs_dir/out.1" "$result_file"
     fi
 done < tests/list.txt
 

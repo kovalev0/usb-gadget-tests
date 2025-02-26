@@ -23,7 +23,7 @@ To execute all tests, run:
 ```bash
 $ sudo ./check.sh
 ```
-The script reads the list of tests from `tests/list.txt`, executes (`run.sh`) each test, and compares its output to the expected result (`result.out`). If the output differs, an error message and `diff` output are displayed.
+The script reads the list of tests from `tests/list.txt`, executes (`run.sh`) each test, and compares its output to the expected results located in the `result.outs` directory (`out.1`, `out.2`, etc., with `out.1` being mandatory). If the output matches any of the expected results, the test passes; otherwise, an error message and the `diff` output against `out.1` are displayed.
 
 #### Test Execution Status
 
