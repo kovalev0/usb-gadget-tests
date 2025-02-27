@@ -12,7 +12,7 @@ if [[ ! -x "$executable" ]]; then
     exit 1
 fi
 
-# Run the keyboard test and save the output
+# Run the test and save the output
 "$executable" &> result
 
 popd >/dev/null
