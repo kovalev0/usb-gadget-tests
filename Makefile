@@ -11,7 +11,8 @@ TARGETS =	keyboard		\
 		printer			\
 		mouse			\
 		ethernet		\
-		storage-bot
+		storage-bot		\
+		serial-ch341
 
 .PHONY: all clean
 
@@ -31,6 +32,9 @@ ethernet: src/ethernet/ethernet.o $(COMMON_OBJ)
 
 storage-bot: src/storage-bot/storage-bot.o $(COMMON_OBJ)
 	$(CC) -o src/storage-bot/storage-bot $^ $(CFLAGS) $(LDFLAGS)
+
+serial-ch341: src/serial-ch341/serial-ch341.o $(COMMON_OBJ)
+	$(CC) -o src/serial-ch341/serial-ch341 $^ $(CFLAGS) $(LDFLAGS)
 
 # Generic rule to compile .c files into .o files
 src/%.o: src/%.c src/usb_gadget_tests.h

@@ -3,3 +3,4 @@ printer
 mouse
 ethernet
 storage-bot
+serial-ch341
