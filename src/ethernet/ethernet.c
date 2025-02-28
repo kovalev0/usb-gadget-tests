@@ -1,9 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 //
-// Only the enumeration stage of a USB-Ethernet device
-// with 3 endpoints (bulk_in, bulk_out, int_in) has been
-// implemented, as CDC transmissions require an extended
-// set of configurations, while gadgetfs limits it to one.
+// Emulates a USB-Ethernet device (VID: 0x0bda, PID: 0x8150),
+// simulating device enumeration.
+// It uses a vendor-specific protocol (USB 2.1) over a high-speed
+// connection. Three endpoints (bulk IN, bulk OUT, interrupt IN)
+// are configured.
+// Handles standard USB control requests (e.g., GET_DESCRIPTOR,
+// SET_CONFIGURATION) and vendor-specific requests.
+// Note: CDC transmissions are not implemented due to gadget's
+// single-configuration limit (real device uses 2 configurations,
+// second includes CDC).
 //
 // Vasiliy Kovalev <kovalev@altlinux.org>
 
