@@ -5,6 +5,14 @@
 // Copyright 2019 syzkaller project authors. All rights reserved.
 // Use of this source code is governed by Apache 2 LICENSE.
 //
+// Emulates a USB HID keyboard (VID: 0x046d, PID: 0xc312), simulating
+// device enumeration and 'x' keypresses. It uses the USB HID protocol
+// (USB 2.0) over a high-speed connection. A single interrupt IN endpoint
+// sends HID reports with keyboard states and keycodes.
+// It handles standard USB control requests (e.g., GET_DESCRIPTOR,
+// SET_CONFIGURATION) and HID-specific requests (e.g., SET_REPORT,
+// SET_IDLE), sending a keypress after 14 control loops.
+//
 // Vasiliy Kovalev <kovalev@altlinux.org>
 
 #include <assert.h>
