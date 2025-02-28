@@ -2,3 +2,4 @@ keyboard
 printer
 mouse
 ethernet
+storage-bot
