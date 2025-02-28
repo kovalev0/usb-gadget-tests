@@ -9,6 +9,13 @@
 //
 // Wei Ming Chen <wmchen.aristo@gmail.com>
 //
+// This emulated printer (VID: 0x0525, PID: 0xa4a8) uses the
+// USB Printer Class protocol (USB 2.0) over a high-speed connection.
+// Two bulk endpoints (IN and OUT) handle data transfer.
+// It processes standard USB control requests (e.g., GET_DESCRIPTOR,
+// SET_CONFIGURATION) and printer-specific requests (e.g., GET_DEVICE_ID,
+// SOFT_RESET) across 12 control loops.
+//
 // Vasiliy Kovalev <kovalev@altlinux.org>
 
 #include <assert.h>
