@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 //
-// Mass Storage device with Bulk-Only Transport protocol
+// Emulates a USB Mass Storage device (VID: 0x090c, PID: 0x1000),
+// simulating device enumeration.
+// It uses the Bulk-Only Transport (BOT) protocol (USB 2.1) over
+// a high-speed connection. Two bulk endpoints (IN and OUT) are
+// configured.
+// Handles standard USB control requests (e.g., GET_DESCRIPTOR,
+// SET_CONFIGURATION) and BOT-specific request (GET_MAX_LUN).
 //
 // Vasiliy Kovalev <kovalev@altlinux.org>
 
