@@ -5,6 +5,15 @@
 // Copyright 2019 syzkaller project authors. All rights reserved.
 // Use of this source code is governed by Apache 2 LICENSE.
 //
+// Emulates a USB HID mouse (VID: 0x093a, PID: 0x2510), simulating
+// device enumeration and right-click, cursor movement, and scrolling.
+// It uses the USB HID protocol (USB 1.1) over a high-speed connection.
+// A single interrupt IN endpoint sends HID reports with button states,
+// coordinates, and wheel data.
+// It handles standard USB control requests (e.g., GET_DESCRIPTOR,
+// SET_CONFIGURATION) and HID-specific requests (e.g., SET_REPORT,
+// SET_IDLE), sending events after 14 control loops.
+//
 // Vasiliy Kovalev <kovalev@altlinux.org>
 
 #include <assert.h>
