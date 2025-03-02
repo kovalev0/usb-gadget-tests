@@ -1,23 +1,37 @@
 # SPDX-License-Identifier: Apache-2.0
 
-CC=gcc
-CFLAGS=-O2 -Wall -g
+CC = gcc
+CFLAGS = -O2 -Wall -g
+LDFLAGS = -lpthread
 
-.PHONY: all
+# Common object file used by all targets
+COMMON_OBJ = src/usb_gadget_tests.o
 
-all: keyboard printer mouse ethernet storage-bot
+TARGETS = keyboard printer mouse ethernet storage-bot
 
-keyboard: src/keyboard/keyboard.c
-	$(CC) -o src/$@/$@ $< $(CFLAGS) -lpthread
+.PHONY: all clean
 
-printer: src/printer/printer.c
-	$(CC) -o src/$@/$@ $< $(CFLAGS) -lpthread
+all: $(TARGETS)
 
-mouse: src/mouse/mouse.c
-	$(CC) -o src/$@/$@ $< $(CFLAGS) -lpthread
+keyboard: src/keyboard/keyboard.o $(COMMON_OBJ)
+	$(CC) -o src/keyboard/keyboard $^ $(CFLAGS) $(LDFLAGS)
 
-ethernet: src/ethernet/ethernet.c
-	$(CC) -o src/$@/$@ $< $(CFLAGS) -lpthread
+printer: src/printer/printer.o $(COMMON_OBJ)
+	$(CC) -o src/printer/printer $^ $(CFLAGS) $(LDFLAGS)
 
-storage-bot: src/storage-bot/storage-bot.c
-	$(CC) -o src/$@/$@ $< $(CFLAGS) -lpthread
+mouse: src/mouse/mouse.o $(COMMON_OBJ)
+	$(CC) -o src/mouse/mouse $^ $(CFLAGS) $(LDFLAGS)
+
+ethernet: src/ethernet/ethernet.o $(COMMON_OBJ)
+	$(CC) -o src/ethernet/ethernet $^ $(CFLAGS) $(LDFLAGS)
+
+storage-bot: src/storage-bot/storage-bot.o $(COMMON_OBJ)
+	$(CC) -o src/storage-bot/storage-bot $^ $(CFLAGS) $(LDFLAGS)
+
+# Generic rule to compile .c files into .o files
+src/%.o: src/%.c src/usb_gadget_tests.h
+	$(CC) -c $< -o $@ $(CFLAGS)
+
+# Clean up generated files
+clean:
+	rm -f $(COMMON_OBJ) src/*/*.o $(foreach target,$(TARGETS),src/$(target)/$(target))
