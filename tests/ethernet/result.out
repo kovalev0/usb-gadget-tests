@@ -75,15 +75,15 @@ ep0: transferred 4 bytes (in)
 event: control, length: 8
   bRequestType: 0x40 (OUT), bRequest: 0x5, wValue: 0x12e, wIndex: 0x0, wLength: 1
   type = USB_TYPE_VENDOR
-  req = unknown = 0x5
+  req = RTL8150_REQ_SET_REGS
 ep0: transferred 1 bytes (out)
 event: control, length: 8
   bRequestType: 0xc0 (IN), bRequest: 0x5, wValue: 0x12e, wIndex: 0x0, wLength: 1
   type = USB_TYPE_VENDOR
-  req = unknown = 0x5
+  req = RTL8150_REQ_SET_REGS
 ep0: transferred 1 bytes (in)
 event: control, length: 8
   bRequestType: 0xc0 (IN), bRequest: 0x5, wValue: 0x120, wIndex: 0x0, wLength: 6
   type = USB_TYPE_VENDOR
-  req = unknown = 0x5
+  req = RTL8150_REQ_GET_REGS
 ep0: transferred 6 bytes (in)
