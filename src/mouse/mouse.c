@@ -1,43 +1,21 @@
 // SPDX-License-Identifier: Apache-2.0
 //
-// Originally written for https://github.com/google/syzkaller.
-//
-// Copyright 2019 syzkaller project authors. All rights reserved.
-// Use of this source code is governed by Apache 2 LICENSE.
-//
 // Emulates a USB HID mouse (VID: 0x093a, PID: 0x2510), simulating
 // device enumeration and right-click, cursor movement, and scrolling.
 // It uses the USB HID protocol (USB 1.1) over a high-speed connection.
 // A single interrupt IN endpoint sends HID reports with button states,
 // coordinates, and wheel data.
 // It handles standard USB control requests (e.g., GET_DESCRIPTOR,
-// SET_CONFIGURATION) and HID-specific requests (e.g., SET_REPORT,
-// SET_IDLE), sending events after 14 control loops.
+// SET_CONFIGURATION) and HID-specific requests (e.g., SET_IDLE),
+// sending events after last hid request.
 //
 // Vasiliy Kovalev <kovalev@altlinux.org>
 
-#include <assert.h>
-#include <fcntl.h>
-#include <pthread.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <sys/mman.h>
-
-#include <linux/types.h>
-#include <linux/hid.h>
-#include <linux/usb/ch9.h>
+#include "../usb_gadget_tests.h"
 
 /*----------------------------------------------------------------------*/
+
+#include <linux/hid.h>
 
 struct hid_class_descriptor {
 	__u8  bDescriptorType;
@@ -56,225 +34,6 @@ struct hid_descriptor {
 
 /*----------------------------------------------------------------------*/
 
-#define UDC_NAME_LENGTH_MAX 128
-
-struct usb_raw_init {
-	__u8 driver_name[UDC_NAME_LENGTH_MAX];
-	__u8 device_name[UDC_NAME_LENGTH_MAX];
-	__u8 speed;
-};
-
-enum usb_raw_event_type {
-	USB_RAW_EVENT_INVALID = 0,
-	USB_RAW_EVENT_CONNECT = 1,
-	USB_RAW_EVENT_CONTROL = 2,
-	USB_RAW_EVENT_SUSPEND = 3,
-	USB_RAW_EVENT_RESUME = 4,
-	USB_RAW_EVENT_RESET = 5,
-	USB_RAW_EVENT_DISCONNECT = 6,
-};
-
-struct usb_raw_event {
-	__u32		type;
-	__u32		length;
-	__u8		data[];
-};
-
-struct usb_raw_ep_io {
-	__u16		ep;
-	__u16		flags;
-	__u32		length;
-	__u8		data[];
-};
-
-#define USB_RAW_EPS_NUM_MAX	30
-#define USB_RAW_EP_NAME_MAX	16
-#define USB_RAW_EP_ADDR_ANY	0xff
-
-struct usb_raw_ep_caps {
-	__u32	type_control	: 1;
-	__u32	type_iso	: 1;
-	__u32	type_bulk	: 1;
-	__u32	type_int	: 1;
-	__u32	dir_in		: 1;
-	__u32	dir_out		: 1;
-};
-
-struct usb_raw_ep_limits {
-	__u16	maxpacket_limit;
-	__u16	max_streams;
-	__u32	reserved;
-};
-
-struct usb_raw_ep_info {
-	__u8				name[USB_RAW_EP_NAME_MAX];
-	__u32				addr;
-	struct usb_raw_ep_caps		caps;
-	struct usb_raw_ep_limits	limits;
-};
-
-struct usb_raw_eps_info {
-	struct usb_raw_ep_info	eps[USB_RAW_EPS_NUM_MAX];
-};
-
-#define USB_RAW_IOCTL_INIT		_IOW('U', 0, struct usb_raw_init)
-#define USB_RAW_IOCTL_RUN		_IO('U', 1)
-#define USB_RAW_IOCTL_EVENT_FETCH	_IOR('U', 2, struct usb_raw_event)
-#define USB_RAW_IOCTL_EP0_WRITE		_IOW('U', 3, struct usb_raw_ep_io)
-#define USB_RAW_IOCTL_EP0_READ		_IOWR('U', 4, struct usb_raw_ep_io)
-#define USB_RAW_IOCTL_EP_ENABLE		_IOW('U', 5, struct usb_endpoint_descriptor)
-#define USB_RAW_IOCTL_EP_DISABLE	_IOW('U', 6, __u32)
-#define USB_RAW_IOCTL_EP_WRITE		_IOW('U', 7, struct usb_raw_ep_io)
-#define USB_RAW_IOCTL_EP_READ		_IOWR('U', 8, struct usb_raw_ep_io)
-#define USB_RAW_IOCTL_CONFIGURE		_IO('U', 9)
-#define USB_RAW_IOCTL_VBUS_DRAW		_IOW('U', 10, __u32)
-#define USB_RAW_IOCTL_EPS_INFO		_IOR('U', 11, struct usb_raw_eps_info)
-#define USB_RAW_IOCTL_EP0_STALL		_IO('U', 12)
-#define USB_RAW_IOCTL_EP_SET_HALT	_IOW('U', 13, __u32)
-#define USB_RAW_IOCTL_EP_CLEAR_HALT	_IOW('U', 14, __u32)
-#define USB_RAW_IOCTL_EP_SET_WEDGE	_IOW('U', 15, __u32)
-
-/*----------------------------------------------------------------------*/
-
-int usb_raw_open() {
-	int fd = open("/dev/raw-gadget", O_RDWR);
-	if (fd < 0) {
-		perror("open()");
-		exit(EXIT_FAILURE);
-	}
-	return fd;
-}
-
-void usb_raw_init(int fd, enum usb_device_speed speed,
-			const char *driver, const char *device) {
-	struct usb_raw_init arg;
-	strcpy((char *)&arg.driver_name[0], driver);
-	strcpy((char *)&arg.device_name[0], device);
-	arg.speed = speed;
-	int rv = ioctl(fd, USB_RAW_IOCTL_INIT, &arg);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_INIT)");
-		exit(EXIT_FAILURE);
-	}
-}
-
-void usb_raw_run(int fd) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_RUN, 0);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_RUN)");
-		exit(EXIT_FAILURE);
-	}
-}
-
-void usb_raw_event_fetch(int fd, struct usb_raw_event *event) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EVENT_FETCH, event);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EVENT_FETCH)");
-		exit(EXIT_FAILURE);
-	}
-}
-
-int usb_raw_ep0_read(int fd, struct usb_raw_ep_io *io) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EP0_READ, io);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EP0_READ)");
-		exit(EXIT_FAILURE);
-	}
-	return rv;
-}
-
-int usb_raw_ep0_write(int fd, struct usb_raw_ep_io *io) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EP0_WRITE, io);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EP0_WRITE)");
-		exit(EXIT_FAILURE);
-	}
-	return rv;
-}
-
-int usb_raw_ep_enable(int fd, struct usb_endpoint_descriptor *desc) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EP_ENABLE, desc);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EP_ENABLE)");
-		exit(EXIT_FAILURE);
-	}
-	return rv;
-}
-
-int usb_raw_ep_disable(int fd, int ep) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EP_DISABLE, ep);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EP_DISABLE)");
-		exit(EXIT_FAILURE);
-	}
-	return rv;
-}
-
-int usb_raw_ep_read(int fd, struct usb_raw_ep_io *io) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EP_READ, io);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EP_READ)");
-		exit(EXIT_FAILURE);
-	}
-	return rv;
-}
-
-int usb_raw_ep_write(int fd, struct usb_raw_ep_io *io) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EP_WRITE, io);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EP_WRITE)");
-		exit(EXIT_FAILURE);
-	}
-	return rv;
-}
-
-int usb_raw_ep_write_may_fail(int fd, struct usb_raw_ep_io *io) {
-	return ioctl(fd, USB_RAW_IOCTL_EP_WRITE, io);
-}
-
-void usb_raw_configure(int fd) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_CONFIGURE, 0);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_CONFIGURED)");
-		exit(EXIT_FAILURE);
-	}
-}
-
-void usb_raw_vbus_draw(int fd, uint32_t power) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_VBUS_DRAW, power);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_VBUS_DRAW)");
-		exit(EXIT_FAILURE);
-	}
-}
-
-int usb_raw_eps_info(int fd, struct usb_raw_eps_info *info) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EPS_INFO, info);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EPS_INFO)");
-		exit(EXIT_FAILURE);
-	}
-	return rv;
-}
-
-void usb_raw_ep0_stall(int fd) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EP0_STALL, 0);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EP0_STALL)");
-		exit(EXIT_FAILURE);
-	}
-}
-
-void usb_raw_ep_set_halt(int fd, int ep) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EP_SET_HALT, ep);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EP_SET_HALT)");
-		exit(EXIT_FAILURE);
-	}
-}
-
-/*----------------------------------------------------------------------*/
-
 void log_control_request(struct usb_ctrlrequest *ctrl) {
 	printf("  bRequestType: 0x%x (%s), bRequest: 0x%x, wValue: 0x%x,"
 		" wIndex: 0x%x, wLength: %d\n", ctrl->bRequestType,
@@ -287,9 +46,6 @@ void log_control_request(struct usb_ctrlrequest *ctrl) {
 		break;
 	case USB_TYPE_CLASS:
 		printf("  type = USB_TYPE_CLASS\n");
-		break;
-	case USB_TYPE_VENDOR:
-		printf("  type = USB_TYPE_VENDOR\n");
 		break;
 	default:
 		printf("  type = unknown = %d\n", (int)ctrl->bRequestType);
@@ -311,62 +67,8 @@ void log_control_request(struct usb_ctrlrequest *ctrl) {
 			case USB_DT_STRING:
 				printf("  desc = USB_DT_STRING\n");
 				break;
-			case USB_DT_INTERFACE:
-				printf("  desc = USB_DT_INTERFACE\n");
-				break;
-			case USB_DT_ENDPOINT:
-				printf("  desc = USB_DT_ENDPOINT\n");
-				break;
-			case USB_DT_DEVICE_QUALIFIER:
-				printf("  desc = USB_DT_DEVICE_QUALIFIER\n");
-				break;
-			case USB_DT_OTHER_SPEED_CONFIG:
-				printf("  desc = USB_DT_OTHER_SPEED_CONFIG\n");
-				break;
-			case USB_DT_INTERFACE_POWER:
-				printf("  desc = USB_DT_INTERFACE_POWER\n");
-				break;
-			case USB_DT_OTG:
-				printf("  desc = USB_DT_OTG\n");
-				break;
-			case USB_DT_DEBUG:
-				printf("  desc = USB_DT_DEBUG\n");
-				break;
-			case USB_DT_INTERFACE_ASSOCIATION:
-				printf("  desc = USB_DT_INTERFACE_ASSOCIATION\n");
-				break;
-			case USB_DT_SECURITY:
-				printf("  desc = USB_DT_SECURITY\n");
-				break;
-			case USB_DT_KEY:
-				printf("  desc = USB_DT_KEY\n");
-				break;
-			case USB_DT_ENCRYPTION_TYPE:
-				printf("  desc = USB_DT_ENCRYPTION_TYPE\n");
-				break;
-			case USB_DT_BOS:
-				printf("  desc = USB_DT_BOS\n");
-				break;
-			case USB_DT_DEVICE_CAPABILITY:
-				printf("  desc = USB_DT_DEVICE_CAPABILITY\n");
-				break;
-			case USB_DT_WIRELESS_ENDPOINT_COMP:
-				printf("  desc = USB_DT_WIRELESS_ENDPOINT_COMP\n");
-				break;
-			case USB_DT_PIPE_USAGE:
-				printf("  desc = USB_DT_PIPE_USAGE\n");
-				break;
-			case USB_DT_SS_ENDPOINT_COMP:
-				printf("  desc = USB_DT_SS_ENDPOINT_COMP\n");
-				break;
-			case HID_DT_HID:
-				printf("  descriptor = HID_DT_HID\n");
-				return;
 			case HID_DT_REPORT:
 				printf("  descriptor = HID_DT_REPORT\n");
-				return;
-			case HID_DT_PHYSICAL:
-				printf("  descriptor = HID_DT_PHYSICAL\n");
 				return;
 			default:
 				printf("  desc = unknown = 0x%x\n",
@@ -377,24 +79,6 @@ void log_control_request(struct usb_ctrlrequest *ctrl) {
 		case USB_REQ_SET_CONFIGURATION:
 			printf("  req = USB_REQ_SET_CONFIGURATION\n");
 			break;
-		case USB_REQ_GET_CONFIGURATION:
-			printf("  req = USB_REQ_GET_CONFIGURATION\n");
-			break;
-		case USB_REQ_SET_INTERFACE:
-			printf("  req = USB_REQ_SET_INTERFACE\n");
-			break;
-		case USB_REQ_GET_INTERFACE:
-			printf("  req = USB_REQ_GET_INTERFACE\n");
-			break;
-		case USB_REQ_GET_STATUS:
-			printf("  req = USB_REQ_GET_STATUS\n");
-			break;
-		case USB_REQ_CLEAR_FEATURE:
-			printf("  req = USB_REQ_CLEAR_FEATURE\n");
-			break;
-		case USB_REQ_SET_FEATURE:
-			printf("  req = USB_REQ_SET_FEATURE\n");
-			break;
 		default:
 			printf("  req = unknown = 0x%x\n", ctrl->bRequest);
 			break;
@@ -402,23 +86,8 @@ void log_control_request(struct usb_ctrlrequest *ctrl) {
 		break;
 	case USB_TYPE_CLASS:
 		switch (ctrl->bRequest) {
-		case HID_REQ_GET_REPORT:
-			printf("  req = HID_REQ_GET_REPORT\n");
-			break;
-		case HID_REQ_GET_IDLE:
-			printf("  req = HID_REQ_GET_IDLE\n");
-			break;
-		case HID_REQ_GET_PROTOCOL:
-			printf("  req = HID_REQ_GET_PROTOCOL\n");
-			break;
-		case HID_REQ_SET_REPORT:
-			printf("  req = HID_REQ_SET_REPORT\n");
-			break;
 		case HID_REQ_SET_IDLE:
 			printf("  req = HID_REQ_SET_IDLE\n");
-			break;
-		case HID_REQ_SET_PROTOCOL:
-			printf("  req = HID_REQ_SET_PROTOCOL\n");
 			break;
 		default:
 			printf("  req = unknown = 0x%x\n", ctrl->bRequest);
@@ -428,32 +97,6 @@ void log_control_request(struct usb_ctrlrequest *ctrl) {
 	default:
 		printf("  req = unknown = 0x%x\n", ctrl->bRequest);
 		break;
-	}
-}
-
-void log_event(struct usb_raw_event *event) {
-	switch (event->type) {
-	case USB_RAW_EVENT_CONNECT:
-		printf("event: connect, length: %u\n", event->length);
-		break;
-	case USB_RAW_EVENT_CONTROL:
-		printf("event: control, length: %u\n", event->length);
-		log_control_request((struct usb_ctrlrequest *)&event->data[0]);
-		break;
-	case USB_RAW_EVENT_SUSPEND:
-		printf("event: suspend\n");
-		break;
-	case USB_RAW_EVENT_RESUME:
-		printf("event: resume\n");
-		break;
-	case USB_RAW_EVENT_RESET:
-		printf("event: reset\n");
-		break;
-	case USB_RAW_EVENT_DISCONNECT:
-		printf("event: disconnect\n");
-		break;
-	default:
-		printf("event: %d (unknown), length: %u\n", event->type, event->length);
 	}
 }
 
@@ -696,8 +339,7 @@ int ep_int_in = -1;
 pthread_t ep_int_in_thread;
 bool ep_int_in_thread_spawned = false;
 
-#include <stdatomic.h>
-atomic_bool rmb_en = ATOMIC_VAR_INIT(false);
+atomic_bool ep_int_in_en = ATOMIC_VAR_INIT(false);
 
 int ep_int_in_send_packet(int fd, struct usb_raw_int_io* io) {
 	int rv;
@@ -725,7 +367,7 @@ void *ep_int_in_loop(void *arg) {
 	io.inner.flags = 0;
 	io.inner.length = EP_MAX_PACKET_INT;
 
-	while (!atomic_load(&rmb_en));
+	while (!atomic_load(&ep_int_in_en));
 
 	// Right mouse button press packet
 	char press_right_click[4]  = {0x02, 0x00, 0x00, 0x00};
@@ -755,8 +397,7 @@ void *ep_int_in_loop(void *arg) {
 
 			// Send right-click press
 			memcpy(&io.inner.data[0], press_right_click, 4);
-			if(ep_int_in_send_packet(fd,&io))
-				continue;
+			ep_int_in_send_packet(fd,&io);
 
 			for (int i = 0; i < num_coords; i++) {
 				// 100 ms delay
@@ -764,8 +405,7 @@ void *ep_int_in_loop(void *arg) {
 
 				// Send cursor movement
 				memcpy(io.inner.data, coords[i], 4);
-				if(ep_int_in_send_packet(fd,&io))
-					continue;
+				ep_int_in_send_packet(fd,&io);
 			}
 			for (int i = 0; i < num_scroll; i++) {
 				// 100 ms delay
@@ -773,16 +413,14 @@ void *ep_int_in_loop(void *arg) {
 
 				// Send scroll state
 				memcpy(io.inner.data, scroll[i], 4);
-				if(ep_int_in_send_packet(fd,&io))
-					continue;
+				ep_int_in_send_packet(fd,&io);
 			}
 			// 100 ms delay
 			usleep(100000);
 
 			// Send button release
 			memcpy(io.inner.data, release_click, 4);
-			if(ep_int_in_send_packet(fd,&io))
-				continue;
+			ep_int_in_send_packet(fd,&io);
 		}
 		// Change coordinates
 		for (int j = 0; j < 3; j++) {
@@ -791,6 +429,8 @@ void *ep_int_in_loop(void *arg) {
 		}
 	}
 }
+
+atomic_bool ep0_request_end = ATOMIC_VAR_INIT(false);
 
 bool ep0_request(int fd, struct usb_raw_control_event *event,
 				struct usb_raw_control_io *io) {
@@ -809,11 +449,6 @@ bool ep0_request(int fd, struct usb_raw_control_event *event,
 					build_config(&io->data[0],
 						sizeof(io->data), false);
 				return true;
-			case USB_DT_OTHER_SPEED_CONFIG:
-				io->inner.length =
-					build_config(&io->data[0],
-						sizeof(io->data), true);
-				return true;
 			case USB_DT_STRING:
 				io->data[0] = 4;
 				io->data[1] = USB_DT_STRING;
@@ -830,6 +465,9 @@ bool ep0_request(int fd, struct usb_raw_control_event *event,
 				memcpy(&io->data[0], &usb_hid_report[0],
 							sizeof(usb_hid_report));
 				io->inner.length = sizeof(usb_hid_report);
+				// Last request
+				if (event->ctrl.wValue == 0x2200)
+					atomic_store(&ep0_request_end, true);
 				return true;
 			default:
 				printf("fail: no response\n");
@@ -851,10 +489,6 @@ bool ep0_request(int fd, struct usb_raw_control_event *event,
 			usb_raw_configure(fd);
 			io->inner.length = 0;
 			return true;
-		case USB_REQ_GET_INTERFACE:
-			io->data[0] = usb_interface.bAlternateSetting;
-			io->inner.length = 1;
-			return true;
 		default:
 			printf("fail: no response\n");
 			exit(EXIT_FAILURE);
@@ -862,23 +496,9 @@ bool ep0_request(int fd, struct usb_raw_control_event *event,
 		break;
 	case USB_TYPE_CLASS:
 		switch (event->ctrl.bRequest) {
-		case HID_REQ_SET_REPORT:
-			// This is an OUT request, so don't initialize data.
-			io->inner.length = 1;
-			return true;
 		case HID_REQ_SET_IDLE:
 			io->inner.length = 0;
 			return true;
-		case HID_REQ_SET_PROTOCOL:
-			io->inner.length = 0;
-			return true;
-		default:
-			printf("fail: no response\n");
-			exit(EXIT_FAILURE);
-		}
-		break;
-	case USB_TYPE_VENDOR:
-		switch (event->ctrl.bRequest) {
 		default:
 			printf("fail: no response\n");
 			exit(EXIT_FAILURE);
@@ -891,10 +511,10 @@ bool ep0_request(int fd, struct usb_raw_control_event *event,
 }
 
 void ep0_loop(int fd) {
-	for (int i=0; i < 15; i++) {
-		if (i == 14) {
-			// Enable Right Mouse Button click sending
-			atomic_store(&rmb_en, true);
+	while(true) {
+		if (atomic_load(&ep0_request_end)) {
+			// Enable Mouse events
+			atomic_store(&ep_int_in_en, true);
 			// Waiting for the completion sending
 			sleep(2);
 			break;
