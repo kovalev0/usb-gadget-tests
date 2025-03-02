@@ -11,243 +11,17 @@
 //
 // This emulated printer (VID: 0x0525, PID: 0xa4a8) uses the
 // USB Printer Class protocol (USB 2.0) over a high-speed connection.
-// Two bulk endpoints (IN and OUT) handle data transfer.
+// Two bulk endpoints (IN and OUT) init to handle data transfer.
 // It processes standard USB control requests (e.g., GET_DESCRIPTOR,
-// SET_CONFIGURATION) and printer-specific requests (e.g., GET_DEVICE_ID,
-// SOFT_RESET) across 12 control loops.
+// SET_CONFIGURATION) and printer-specific requests (e.g., GET_DEVICE_ID).
 //
 // Vasiliy Kovalev <kovalev@altlinux.org>
 
-#include <assert.h>
-#include <fcntl.h>
-#include <pthread.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <sys/mman.h>
-
-#include <linux/types.h>
-#include <linux/usb/ch9.h>
-
-/*----------------------------------------------------------------------*/
-
-#define UDC_NAME_LENGTH_MAX 128
-
-struct usb_raw_init {
-	__u8 driver_name[UDC_NAME_LENGTH_MAX];
-	__u8 device_name[UDC_NAME_LENGTH_MAX];
-	__u8 speed;
-};
-
-enum usb_raw_event_type {
-	USB_RAW_EVENT_INVALID = 0,
-	USB_RAW_EVENT_CONNECT = 1,
-	USB_RAW_EVENT_CONTROL = 2,
-	USB_RAW_EVENT_SUSPEND = 3,
-	USB_RAW_EVENT_RESUME = 4,
-	USB_RAW_EVENT_RESET = 5,
-	USB_RAW_EVENT_DISCONNECT = 6,
-};
-
-struct usb_raw_event {
-	__u32		type;
-	__u32		length;
-	__u8		data[];
-};
-
-struct usb_raw_ep_io {
-	__u16		ep;
-	__u16		flags;
-	__u32		length;
-	__u8		data[];
-};
-
-#define USB_RAW_EPS_NUM_MAX	30
-#define USB_RAW_EP_NAME_MAX	16
-#define USB_RAW_EP_ADDR_ANY	0xff
-
-struct usb_raw_ep_caps {
-	__u32	type_control	: 1;
-	__u32	type_iso	: 1;
-	__u32	type_bulk	: 1;
-	__u32	type_int	: 1;
-	__u32	dir_in		: 1;
-	__u32	dir_out		: 1;
-};
-
-struct usb_raw_ep_limits {
-	__u16	maxpacket_limit;
-	__u16	max_streams;
-	__u32	reserved;
-};
-
-struct usb_raw_ep_info {
-	__u8				name[USB_RAW_EP_NAME_MAX];
-	__u32				addr;
-	struct usb_raw_ep_caps		caps;
-	struct usb_raw_ep_limits	limits;
-};
-
-struct usb_raw_eps_info {
-	struct usb_raw_ep_info	eps[USB_RAW_EPS_NUM_MAX];
-};
-
-#define USB_RAW_IOCTL_INIT		_IOW('U', 0, struct usb_raw_init)
-#define USB_RAW_IOCTL_RUN		_IO('U', 1)
-#define USB_RAW_IOCTL_EVENT_FETCH	_IOR('U', 2, struct usb_raw_event)
-#define USB_RAW_IOCTL_EP0_WRITE		_IOW('U', 3, struct usb_raw_ep_io)
-#define USB_RAW_IOCTL_EP0_READ		_IOWR('U', 4, struct usb_raw_ep_io)
-#define USB_RAW_IOCTL_EP_ENABLE		_IOW('U', 5, struct usb_endpoint_descriptor)
-#define USB_RAW_IOCTL_EP_DISABLE	_IOW('U', 6, __u32)
-#define USB_RAW_IOCTL_EP_WRITE		_IOW('U', 7, struct usb_raw_ep_io)
-#define USB_RAW_IOCTL_EP_READ		_IOWR('U', 8, struct usb_raw_ep_io)
-#define USB_RAW_IOCTL_CONFIGURE		_IO('U', 9)
-#define USB_RAW_IOCTL_VBUS_DRAW		_IOW('U', 10, __u32)
-#define USB_RAW_IOCTL_EPS_INFO		_IOR('U', 11, struct usb_raw_eps_info)
-#define USB_RAW_IOCTL_EP0_STALL		_IO('U', 12)
-#define USB_RAW_IOCTL_EP_SET_HALT	_IOW('U', 13, __u32)
-#define USB_RAW_IOCTL_EP_CLEAR_HALT	_IOW('U', 14, __u32)
-#define USB_RAW_IOCTL_EP_SET_WEDGE	_IOW('U', 15, __u32)
-
-/*----------------------------------------------------------------------*/
-
-int usb_raw_open() {
-	int fd = open("/dev/raw-gadget", O_RDWR);
-	if (fd < 0) {
-		perror("open()");
-		exit(EXIT_FAILURE);
-	}
-	return fd;
-}
-
-void usb_raw_init(int fd, enum usb_device_speed speed,
-			const char *driver, const char *device) {
-	struct usb_raw_init arg;
-	strcpy((char *)&arg.driver_name[0], driver);
-	strcpy((char *)&arg.device_name[0], device);
-	arg.speed = speed;
-	int rv = ioctl(fd, USB_RAW_IOCTL_INIT, &arg);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_INIT)");
-		exit(EXIT_FAILURE);
-	}
-}
-
-void usb_raw_run(int fd) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_RUN, 0);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_RUN)");
-		exit(EXIT_FAILURE);
-	}
-}
-
-void usb_raw_event_fetch(int fd, struct usb_raw_event *event) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EVENT_FETCH, event);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EVENT_FETCH)");
-		exit(EXIT_FAILURE);
-	}
-}
-
-int usb_raw_ep0_read(int fd, struct usb_raw_ep_io *io) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EP0_READ, io);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EP0_READ)");
-		exit(EXIT_FAILURE);
-	}
-	return rv;
-}
-
-int usb_raw_ep0_write(int fd, struct usb_raw_ep_io *io) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EP0_WRITE, io);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EP0_WRITE)");
-		exit(EXIT_FAILURE);
-	}
-	return rv;
-}
-
-int usb_raw_ep_enable(int fd, struct usb_endpoint_descriptor *desc) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EP_ENABLE, desc);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EP_ENABLE)");
-		exit(EXIT_FAILURE);
-	}
-	return rv;
-}
-
-int usb_raw_ep_read(int fd, struct usb_raw_ep_io *io) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EP_READ, io);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EP_READ)");
-		exit(EXIT_FAILURE);
-	}
-	return rv;
-}
-
-int usb_raw_ep_write(int fd, struct usb_raw_ep_io *io) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EP_WRITE, io);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EP_WRITE)");
-		exit(EXIT_FAILURE);
-	}
-	return rv;
-}
-
-void usb_raw_configure(int fd) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_CONFIGURE, 0);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_CONFIGURED)");
-		exit(EXIT_FAILURE);
-	}
-}
-
-void usb_raw_vbus_draw(int fd, uint32_t power) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_VBUS_DRAW, power);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_VBUS_DRAW)");
-		exit(EXIT_FAILURE);
-	}
-}
-
-int usb_raw_eps_info(int fd, struct usb_raw_eps_info *info) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EPS_INFO, info);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EPS_INFO)");
-		exit(EXIT_FAILURE);
-	}
-	return rv;
-}
-
-void usb_raw_ep0_stall(int fd) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EP0_STALL, 0);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EP0_STALL)");
-		exit(EXIT_FAILURE);
-	}
-}
-
-void usb_raw_ep_set_halt(int fd, int ep) {
-	int rv = ioctl(fd, USB_RAW_IOCTL_EP_SET_HALT, ep);
-	if (rv < 0) {
-		perror("ioctl(USB_RAW_IOCTL_EP_SET_HALT)");
-		exit(EXIT_FAILURE);
-	}
-}
+#include "../usb_gadget_tests.h"
 
 /*----------------------------------------------------------------------*/
 
 #define GET_DEVICE_ID		0
-#define GET_PORT_STATUS		1
-#define SOFT_RESET		2
 
 void log_control_request(struct usb_ctrlrequest *ctrl) {
 	printf("  bRequestType: 0x%x (%s), bRequest: 0x%x, wValue: 0x%x,"
@@ -261,9 +35,6 @@ void log_control_request(struct usb_ctrlrequest *ctrl) {
 		break;
 	case USB_TYPE_CLASS:
 		printf("  type = USB_TYPE_CLASS\n");
-		break;
-	case USB_TYPE_VENDOR:
-		printf("  type = USB_TYPE_VENDOR\n");
 		break;
 	default:
 		printf("  type = unknown = %d\n", (int)ctrl->bRequestType);
@@ -285,54 +56,6 @@ void log_control_request(struct usb_ctrlrequest *ctrl) {
 			case USB_DT_STRING:
 				printf("  desc = USB_DT_STRING\n");
 				break;
-			case USB_DT_INTERFACE:
-				printf("  desc = USB_DT_INTERFACE\n");
-				break;
-			case USB_DT_ENDPOINT:
-				printf("  desc = USB_DT_ENDPOINT\n");
-				break;
-			case USB_DT_DEVICE_QUALIFIER:
-				printf("  desc = USB_DT_DEVICE_QUALIFIER\n");
-				break;
-			case USB_DT_OTHER_SPEED_CONFIG:
-				printf("  desc = USB_DT_OTHER_SPEED_CONFIG\n");
-				break;
-			case USB_DT_INTERFACE_POWER:
-				printf("  desc = USB_DT_INTERFACE_POWER\n");
-				break;
-			case USB_DT_OTG:
-				printf("  desc = USB_DT_OTG\n");
-				break;
-			case USB_DT_DEBUG:
-				printf("  desc = USB_DT_DEBUG\n");
-				break;
-			case USB_DT_INTERFACE_ASSOCIATION:
-				printf("  desc = USB_DT_INTERFACE_ASSOCIATION\n");
-				break;
-			case USB_DT_SECURITY:
-				printf("  desc = USB_DT_SECURITY\n");
-				break;
-			case USB_DT_KEY:
-				printf("  desc = USB_DT_KEY\n");
-				break;
-			case USB_DT_ENCRYPTION_TYPE:
-				printf("  desc = USB_DT_ENCRYPTION_TYPE\n");
-				break;
-			case USB_DT_BOS:
-				printf("  desc = USB_DT_BOS\n");
-				break;
-			case USB_DT_DEVICE_CAPABILITY:
-				printf("  desc = USB_DT_DEVICE_CAPABILITY\n");
-				break;
-			case USB_DT_WIRELESS_ENDPOINT_COMP:
-				printf("  desc = USB_DT_WIRELESS_ENDPOINT_COMP\n");
-				break;
-			case USB_DT_PIPE_USAGE:
-				printf("  desc = USB_DT_PIPE_USAGE\n");
-				break;
-			case USB_DT_SS_ENDPOINT_COMP:
-				printf("  desc = USB_DT_SS_ENDPOINT_COMP\n");
-				break;
 			default:
 				printf("  desc = unknown = 0x%x\n",
 							ctrl->wValue >> 8);
@@ -341,24 +64,6 @@ void log_control_request(struct usb_ctrlrequest *ctrl) {
 			break;
 		case USB_REQ_SET_CONFIGURATION:
 			printf("  req = USB_REQ_SET_CONFIGURATION\n");
-			break;
-		case USB_REQ_GET_CONFIGURATION:
-			printf("  req = USB_REQ_GET_CONFIGURATION\n");
-			break;
-		case USB_REQ_SET_INTERFACE:
-			printf("  req = USB_REQ_SET_INTERFACE\n");
-			break;
-		case USB_REQ_GET_INTERFACE:
-			printf("  req = USB_REQ_GET_INTERFACE\n");
-			break;
-		case USB_REQ_GET_STATUS:
-			printf("  req = USB_REQ_GET_STATUS\n");
-			break;
-		case USB_REQ_CLEAR_FEATURE:
-			printf("  req = USB_REQ_CLEAR_FEATURE\n");
-			break;
-		case USB_REQ_SET_FEATURE:
-			printf("  req = USB_REQ_SET_FEATURE\n");
 			break;
 		default:
 			printf("  req = unknown = 0x%x\n", ctrl->bRequest);
@@ -370,12 +75,6 @@ void log_control_request(struct usb_ctrlrequest *ctrl) {
 		case GET_DEVICE_ID:
 			printf("  req = GET_DEVICE_ID\n");
 			break;
-		case GET_PORT_STATUS:
-			printf("  req = GET_PORT_STATUS\n");
-			break;
-		case SOFT_RESET:
-			printf("  req = SOFT_RESET\n");
-			break;
 		default:
 			printf("  req = unknown = 0x%x\n", ctrl->bRequest);
 			break;
@@ -384,32 +83,6 @@ void log_control_request(struct usb_ctrlrequest *ctrl) {
 	default:
 		printf("  req = unknown = 0x%x\n", ctrl->bRequest);
 		break;
-	}
-}
-
-void log_event(struct usb_raw_event *event) {
-	switch (event->type) {
-	case USB_RAW_EVENT_CONNECT:
-		printf("event: connect, length: %u\n", event->length);
-		break;
-	case USB_RAW_EVENT_CONTROL:
-		printf("event: control, length: %u\n", event->length);
-		log_control_request((struct usb_ctrlrequest *)&event->data[0]);
-		break;
-	case USB_RAW_EVENT_SUSPEND:
-		printf("event: suspend");
-		break;
-	case USB_RAW_EVENT_RESUME:
-		printf("event: resume");
-		break;
-	case USB_RAW_EVENT_RESET:
-		printf("event: reset");
-		break;
-	case USB_RAW_EVENT_DISCONNECT:
-		printf("event: disconnect");
-		break;
-	default:
-		printf("event: %d (unknown), length: %u\n", event->type, event->length);
 	}
 }
 
@@ -451,18 +124,6 @@ struct usb_device_descriptor usb_device = {
 	.bNumConfigurations =	1,
 };
 
-struct usb_qualifier_descriptor usb_qualifier = {
-	.bLength =		sizeof(struct usb_qualifier_descriptor),
-	.bDescriptorType =	USB_DT_DEVICE_QUALIFIER,
-	.bcdUSB =		__constant_cpu_to_le16(BCD_USB),
-	.bDeviceClass =		0,
-	.bDeviceSubClass =	0,
-	.bDeviceProtocol =	0,
-	.bMaxPacketSize0 =	EP_MAX_PACKET_CONTROL,
-	.bNumConfigurations =	1,
-	.bRESERVED =		0,
-};
-
 struct usb_config_descriptor usb_config = {
 	.bLength =		USB_DT_CONFIG_SIZE,
 	.bDescriptorType =	USB_DT_CONFIG,
@@ -500,13 +161,6 @@ struct usb_endpoint_descriptor usb_endpoint_bulk_in = {
 	.bEndpointAddress =	USB_DIR_IN | EP_NUM_BULK_IN,
 	.bmAttributes =		USB_ENDPOINT_XFER_BULK,
 	.wMaxPacketSize =	EP_MAX_PACKET_BULK,
-};
-
-struct usb_bos_descriptor usb_bos = {
-	.bLength =		USB_DT_BOS_SIZE,
-	.bDescriptorType =	USB_DT_BOS,
-	.wTotalLength =		USB_DT_BOS_SIZE,
-	.bNumDeviceCaps =	0,
 };
 
 int build_config(char *data, int length, bool other_speed) {
@@ -639,10 +293,14 @@ int ep_bulk_in = -1;
 pthread_t ep_bulk_out_thread;
 pthread_t ep_bulk_in_thread;
 
+atomic_bool ep_bulk_out_en = ATOMIC_VAR_INIT(false);
+atomic_bool ep_bulk_in_en = ATOMIC_VAR_INIT(false);
+
 void *ep_bulk_out_loop(void *arg) {
 	int fd = (int)(long)arg;
 	struct usb_raw_bulk_io io;
 
+	while (!atomic_load(&ep_bulk_out_en));
 	while (true) {
 		assert(ep_bulk_out != -1);
 		io.inner.ep = ep_bulk_out;
@@ -660,6 +318,7 @@ void *ep_bulk_in_loop(void *arg) {
 	int fd = (int)(long)arg;
 	struct usb_raw_bulk_io io;
 
+	while (!atomic_load(&ep_bulk_in_en));
 	while (true) {
 		assert(ep_bulk_in != -1);
 		io.inner.ep = ep_bulk_in;
@@ -678,6 +337,8 @@ void *ep_bulk_in_loop(void *arg) {
 	return NULL;
 }
 
+atomic_bool ep0_request_end = ATOMIC_VAR_INIT(false);
+
 bool ep0_request(int fd, struct usb_raw_control_event *event,
 				struct usb_raw_control_io *io) {
 	switch (event->ctrl.bRequestType & USB_TYPE_MASK) {
@@ -689,11 +350,6 @@ bool ep0_request(int fd, struct usb_raw_control_event *event,
 				memcpy(&io->data[0], &usb_device,
 							sizeof(usb_device));
 				io->inner.length = sizeof(usb_device);
-				return true;
-			case USB_DT_DEVICE_QUALIFIER:
-				memcpy(&io->data[0], &usb_qualifier,
-							sizeof(usb_qualifier));
-				io->inner.length = sizeof(usb_qualifier);
 				return true;
 			case USB_DT_CONFIG:
 				io->inner.length =
@@ -707,7 +363,7 @@ bool ep0_request(int fd, struct usb_raw_control_event *event,
 					io->data[2] = 0x09;
 					io->data[3] = 0x04;
 				} else {
-					io->data[2] = 'x';
+					io->data[2] = 'p';
 					io->data[3] = 0x00;
 				}
 				io->inner.length = 4;
@@ -717,11 +373,6 @@ bool ep0_request(int fd, struct usb_raw_control_event *event,
 				exit(EXIT_FAILURE);
 			}
 			break;
-		case USB_REQ_GET_CONFIGURATION:
-			io->inner.length =
-				build_config(&io->data[0],
-					sizeof(io->data), false);
-			return true;
 		case USB_REQ_SET_CONFIGURATION:
 			// If CUPS is installed on the host PC, this request
 			// will be sent again. So don't enable endpoints nor
@@ -746,14 +397,6 @@ bool ep0_request(int fd, struct usb_raw_control_event *event,
 			usb_raw_configure(fd);
 			io->inner.length = 0;
 			return true;
-		case USB_REQ_SET_INTERFACE:
-			// Do nothing, as the device only has one interface.
-			io->inner.length = 0;
-			return true;
-		case USB_REQ_GET_INTERFACE:
-			io->data[0] = usb_interface.bAlternateSetting;
-			io->inner.length = 1;
-			return true;
 		default:
 			printf("fail: no response\n");
 			exit(EXIT_FAILURE);
@@ -771,19 +414,11 @@ bool ep0_request(int fd, struct usb_raw_control_event *event,
 			io->data[0] = (value >> 8) & 0xFF;
 			io->data[1] = value & 0xFF;
 			io->inner.length = value;
+			// Last request
+			if (event->ctrl.wValue == 0x0)
+				atomic_store(&ep0_request_end, true);
 			return true;
 		}
-		case GET_PORT_STATUS:
-			return true;
-		case SOFT_RESET:
-			return true;
-		default:
-			printf("fail: no response\n");
-			exit(EXIT_FAILURE);
-		}
-		break;
-	case USB_TYPE_VENDOR:
-		switch (event->ctrl.bRequest) {
 		default:
 			printf("fail: no response\n");
 			exit(EXIT_FAILURE);
@@ -796,7 +431,16 @@ bool ep0_request(int fd, struct usb_raw_control_event *event,
 }
 
 void ep0_loop(int fd) {
-	for (int i=0; i < 12; i++) {
+	while(true) {
+		if (atomic_load(&ep0_request_end)) {
+			// Debug
+			// atomic_store(&ep_bulk_out_en, true);
+			// atomic_store(&ep_bulk_in_en, true);
+
+			sleep(1);
+			// Exit
+			return;
+		}
 		struct usb_raw_control_event event;
 		event.inner.type = 0;
 		event.inner.length = sizeof(event.ctrl);
