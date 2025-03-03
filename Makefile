@@ -7,7 +7,11 @@ LDFLAGS = -lpthread
 # Common object file used by all targets
 COMMON_OBJ = src/usb_gadget_tests.o
 
-TARGETS = keyboard printer mouse ethernet storage-bot
+TARGETS =	keyboard		\
+		printer			\
+		mouse			\
+		ethernet		\
+		storage-bot
 
 .PHONY: all clean
 
