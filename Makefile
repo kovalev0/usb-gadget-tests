@@ -12,7 +12,8 @@ TARGETS =	keyboard		\
 		mouse			\
 		ethernet		\
 		storage-bot		\
-		serial-ch341
+		serial-ch341		\
+		serial-ftdi_sio
 
 .PHONY: all clean
 
@@ -35,6 +36,9 @@ storage-bot: src/storage-bot/storage-bot.o $(COMMON_OBJ)
 
 serial-ch341: src/serial-ch341/serial-ch341.o $(COMMON_OBJ)
 	$(CC) -o src/serial-ch341/serial-ch341 $^ $(CFLAGS) $(LDFLAGS)
+
+serial-ftdi_sio: src/serial-ftdi_sio/serial-ftdi_sio.o $(COMMON_OBJ)
+	$(CC) -o src/serial-ftdi_sio/serial-ftdi_sio $^ $(CFLAGS) $(LDFLAGS)
 
 # Generic rule to compile .c files into .o files
 src/%.o: src/%.c src/usb_gadget_tests.h

@@ -4,3 +4,4 @@ mouse
 ethernet
 storage-bot
 serial-ch341
+serial-ftdi_sio
