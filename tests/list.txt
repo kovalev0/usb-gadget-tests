@@ -7,3 +7,4 @@ serial-ch341
 serial-ftdi_sio
 serial-cp210x
 serial-pl2303
+serial-oti6858
