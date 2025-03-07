@@ -53,11 +53,9 @@ version_lt() {
 # Check if kernel version is less than 5.11
 if version_lt "$KERNEL_VERSION" "5.11"; then
     # Legacy kernel (< 5.11)
-    ln -sf result.out.5.10 result.out
     "$executable" "--legacy-line-ctl" &> result
 else
     # Modern kernel (>= 5.11)
-    ln -sf result.out.5.11 result.out
     "$executable" &> result
 fi
 
