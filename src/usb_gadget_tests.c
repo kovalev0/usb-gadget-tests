@@ -154,10 +154,10 @@ void log_event(struct usb_raw_event *event) {
 		printf("event: suspend\n");
 		break;
 	case USB_RAW_EVENT_RESUME:
-		printf("event: resume\n");
+		// printf("event: resume\n");
 		break;
 	case USB_RAW_EVENT_RESET:
-		printf("event: reset\n");
+		// printf("event: reset\n");
 		break;
 	case USB_RAW_EVENT_DISCONNECT:
 		printf("event: disconnect\n");
