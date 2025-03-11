@@ -115,10 +115,10 @@ void log_control_request(struct usb_ctrlrequest *ctrl) {
 #define EP_MAX_PACKET_BULK	512
 #define EP_MAX_PACKET_INT	2
 
-// Assigned dynamically.
-#define EP_NUM_BULK_OUT	0x0
-#define EP_NUM_BULK_IN	0x0
-#define EP_NUM_INT_IN	0x0
+// Hardcode
+#define EP_NUM_BULK_IN	0x1
+#define EP_NUM_BULK_OUT	0x2
+#define EP_NUM_INT_IN	0x3
 
 struct usb_device_descriptor usb_device = {
 	.bLength =		USB_DT_DEVICE_SIZE,
