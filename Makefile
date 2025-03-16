@@ -17,7 +17,8 @@ TARGETS =	keyboard		\
 		serial-cp210x		\
 		serial-pl2303		\
 		serial-oti6858		\
-		usbtmc
+		usbtmc			\
+		input-tab-hanwang
 
 .PHONY: all clean
 
@@ -55,6 +56,9 @@ serial-oti6858: src/serial-oti6858/serial-oti6858.o $(COMMON_OBJ)
 
 usbtmc: src/usbtmc/usbtmc.o $(COMMON_OBJ)
 	$(CC) -o src/usbtmc/usbtmc $^ $(CFLAGS) $(LDFLAGS)
+
+input-tab-hanwang: src/input-tab-hanwang/input-tab-hanwang.o $(COMMON_OBJ)
+	$(CC) -o src/input-tab-hanwang/input-tab-hanwang $^ $(CFLAGS) $(LDFLAGS)
 
 # Generic rule to compile .c files into .o files
 src/%.o: src/%.c src/usb_gadget_tests.h
