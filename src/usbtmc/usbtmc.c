@@ -390,10 +390,8 @@ void *ep_int_in_loop(void *arg) {
 	memset(io.inner.data, 0, io.inner.length);
 
 	// Waiting ...
-	while (atomic_load(&ep_int_in_en));
-
-	// Pause
-	sleep(1);
+	while (!atomic_load(&ep_int_in_en));
+	atomic_store(&ep_int_in_en, false);
 
 	for (int i =0; i< 3; i++) {
 		// STB notification: id > 0x81
@@ -416,10 +414,9 @@ void *ep_int_in_loop(void *arg) {
 		io.inner.data[0] = 0x81;
 		ep_int_in_send_packet(fd,&io);
 	}
-	atomic_store(&ep_int_in_en, false);
 
 	// Wait exit
-	sleep(2);
+	sleep(10);
 
 	return NULL;
 }
@@ -529,20 +526,11 @@ void ep0_loop(int fd) {
 			// atomic_store(&ep_bulk_out_en, true);
 			// atomic_store(&ep_bulk_in_en, true);
 
-			// Wait ep_in sending
+			// Wait ep_int_in start
+			while(atomic_load(&ep_int_in_en));
 
-			while(!atomic_load(&ep_int_in_en));
-
-			// Pause
-			sleep(1);
-
-			pthread_cancel(ep_int_in_thread);
-			int rv = pthread_join(ep_int_in_thread, NULL);
-			if (rv != 0) {
-				perror("pthread_join(ep_int_in)");
-				exit(EXIT_FAILURE);
-			}
-			usb_raw_ep_disable(fd, ep_int_in);
+			// Wait ep_int_in send
+			sleep(2);
 
 			// Exit
 			return;
