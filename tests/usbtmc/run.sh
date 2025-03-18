@@ -22,9 +22,11 @@ if [[ ! -d "/sys/bus/usb/drivers/usbtmc" ]]; then
             sleep 1
         else
             echo -e "${YELLOW}Error: Failed to load usbtmc${NC}"
+            exit 70
         fi
     else
             echo -e "${YELLOW}Warning: usbtmc module is not available (not built-in or loadable).${NC}"
+            exit 70
     fi
 fi
 
