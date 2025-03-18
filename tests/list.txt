@@ -10,3 +10,4 @@ serial-pl2303
 serial-oti6858
 usbtmc
 input-tab-hanwang
+input-tab-pegasus
