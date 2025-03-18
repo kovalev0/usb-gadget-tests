@@ -11,3 +11,4 @@ serial-oti6858
 usbtmc
 input-tab-hanwang
 input-tab-pegasus
+input-tab-kbtab
