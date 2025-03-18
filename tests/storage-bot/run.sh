@@ -23,9 +23,11 @@ if [[ ! -d "/sys/bus/usb/drivers/usb-storage" ]]; then
             sleep 1
         else
             echo -e "${YELLOW}Error: Failed to load usb-storage${NC}"
+            exit 70
         fi
     else
             echo -e "${YELLOW}Warning: usb-storage module is not available (not built-in or loadable).${NC}"
+            exit 70
     fi
 fi
 

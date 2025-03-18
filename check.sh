@@ -45,6 +45,11 @@ while IFS= read -r test_name; do
     timeout 30 "$test_script"
     exit_code=$?
 
+    if [[ $exit_code -eq 70 ]]; then
+        echo -e "$test_name \e[36m[Skip]\e[0m"
+        continue
+    fi
+
     if [[ $exit_code -eq 124 ]]; then
         echo -e "$test_name \e[31m[Timeout]\e[0m"
         continue

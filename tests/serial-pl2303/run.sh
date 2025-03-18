@@ -22,9 +22,11 @@ if [[ ! -d "/sys/bus/usb-serial" ]]; then
             sleep 1
         else
             echo -e "${YELLOW}Error: Failed to load usbserial${NC}"
+            exit 70
         fi
     else
             echo -e "${YELLOW}Warning: usbserial module is not available (not built-in or loadable).${NC}"
+            exit 70
     fi
 fi
 
@@ -35,9 +37,11 @@ if [[ ! -d "/sys/bus/usb/drivers/pl2303" ]]; then
             sleep 1
         else
             echo -e "${YELLOW}Error: Failed to load pl2303${NC}"
+            exit 70
         fi
     else
             echo -e "${YELLOW}Warning: pl2303 module is not available (not built-in or loadable).${NC}"
+            exit 70
     fi
 fi
 

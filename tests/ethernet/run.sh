@@ -23,9 +23,11 @@ if [[ ! -d "/sys/bus/usb/drivers/rtl8150" ]]; then
             sleep 1
         else
             echo -e "${YELLOW}Error: Failed to load rtl8150${NC}"
+            exit 70
         fi
     else
             echo -e "${YELLOW}Warning: rtl8150 module is not available (not built-in or loadable).${NC}"
+            exit 70
     fi
 fi
 
