@@ -21,7 +21,8 @@ TARGETS =	keyboard		\
 		input-tab-hanwang	\
 		input-tab-pegasus	\
 		input-tab-kbtab		\
-		input-tab-acecad
+		input-tab-acecad	\
+		input-tab-acecad-Flair
 
 .PHONY: all clean
 
@@ -71,6 +72,9 @@ input-tab-kbtab: src/input-tab-kbtab/input-tab-kbtab.o $(COMMON_OBJ)
 
 input-tab-acecad: src/input-tab-acecad/input-tab-acecad.o $(COMMON_OBJ)
 	$(CC) -o src/input-tab-acecad/input-tab-acecad $^ $(CFLAGS) $(LDFLAGS)
+
+input-tab-acecad-Flair: src/input-tab-acecad-Flair/input-tab-acecad-Flair.o $(COMMON_OBJ)
+	$(CC) -o src/input-tab-acecad-Flair/input-tab-acecad-Flair $^ $(CFLAGS) $(LDFLAGS)
 
 # Generic rule to compile .c files into .o files
 src/%.o: src/%.c src/usb_gadget_tests.h
