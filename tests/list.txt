@@ -13,3 +13,4 @@ input-tab-hanwang
 input-tab-pegasus
 input-tab-kbtab
 input-tab-acecad
+input-tab-acecad-Flair
