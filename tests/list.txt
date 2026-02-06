@@ -15,3 +15,4 @@ input-tab-kbtab
 input-tab-acecad
 input-tab-acecad-Flair
 input-tab-aiptek
+sisusbvga-FULL_SPEED
