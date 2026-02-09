@@ -7,23 +7,24 @@ LDFLAGS = -lpthread
 # Common object file used by all targets
 COMMON_OBJ = src/usb_gadget_tests.o
 
-TARGETS =	keyboard		\
-		printer			\
-		mouse			\
-		ethernet		\
-		storage-bot		\
-		serial-ch341		\
-		serial-ftdi_sio		\
-		serial-cp210x		\
-		serial-pl2303		\
-		serial-oti6858		\
-		usbtmc			\
-		input-tab-hanwang	\
-		input-tab-pegasus	\
-		input-tab-kbtab		\
-		input-tab-acecad	\
-		input-tab-acecad-Flair	\
-		input-tab-aiptek
+TARGETS = \
+	keyboard \
+	printer \
+	mouse \
+	ethernet \
+	storage-bot \
+	serial-ch341 \
+	serial-ftdi_sio \
+	serial-cp210x \
+	serial-pl2303 \
+	serial-oti6858 \
+	usbtmc \
+	input-tab-hanwang \
+	input-tab-pegasus \
+	input-tab-kbtab \
+	input-tab-acecad \
+	input-tab-acecad-Flair \
+	input-tab-aiptek
 
 .PHONY: all clean
 
