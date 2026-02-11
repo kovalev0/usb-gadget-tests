@@ -26,7 +26,8 @@ TARGETS = \
 	input-tab-acecad-Flair \
 	input-tab-aiptek \
 	sisusbvga-FULL_SPEED \
-	sisusbvga-init-gfx-dev
+	sisusbvga-init-gfx-dev \
+	sisusbvga-init-gfx-core-DDR_16Mb
 
 .PHONY: all clean
 
@@ -88,6 +89,9 @@ sisusbvga-FULL_SPEED: src/sisusbvga-FULL_SPEED/sisusbvga-FULL_SPEED.o $(COMMON_O
 
 sisusbvga-init-gfx-dev: src/sisusbvga-init-gfx-dev/sisusbvga-init-gfx-dev.o $(COMMON_OBJ)
 	$(CC) -o src/sisusbvga-init-gfx-dev/sisusbvga-init-gfx-dev $^ $(CFLAGS) $(LDFLAGS)
+
+sisusbvga-init-gfx-core-DDR_16Mb: src/sisusbvga-init-gfx-core-DDR_16Mb/sisusbvga-init-gfx-core-DDR_16Mb.o $(COMMON_OBJ)
+	$(CC) -o src/sisusbvga-init-gfx-core-DDR_16Mb/sisusbvga-init-gfx-core-DDR_16Mb $^ $(CFLAGS) $(LDFLAGS)
 
 # Generic rule to compile .c files into .o files
 src/%.o: src/%.c src/usb_gadget_tests.h

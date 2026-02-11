@@ -17,3 +17,4 @@ input-tab-acecad-Flair
 input-tab-aiptek
 sisusbvga-FULL_SPEED
 sisusbvga-init-gfx-dev
+sisusbvga-init-gfx-core-DDR_16Mb
