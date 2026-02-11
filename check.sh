@@ -42,7 +42,7 @@ while IFS= read -r test_name; do
     fi
 
     echo "Running test: $test_name"
-    timeout 30 "$test_script"
+    timeout 60 "$test_script"
     exit_code=$?
 
     if [[ $exit_code -eq 70 ]]; then

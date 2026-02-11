@@ -29,7 +29,7 @@ The script reads the list of tests from `tests/list.txt`, executes (`run.sh`) ea
 
 - **[Ok]** - Success
 - **[Failed]** - Test execution failed
-- **[Timeout]** - Test failed due to exceeding the 30-second execution limit
+- **[Timeout]** - Test failed due to exceeding the 60-second execution limit
 - **[Skip]** - Test skipped due to unavailable module
 
 ## License
