@@ -1,0 +1,132 @@
+[VRAM] Allocated 8 MB of emulated VRAM
+event: connect, length: 0
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x100, wIndex: 0x0, wLength: 64
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_DEVICE
+ep0: transferred 18 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x100, wIndex: 0x0, wLength: 18
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_DEVICE
+ep0: transferred 18 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x200, wIndex: 0x0, wLength: 9
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_CONFIG
+config->wTotalLength: 60
+ep0: transferred 9 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x200, wIndex: 0x0, wLength: 60
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_CONFIG
+config->wTotalLength: 60
+ep0: transferred 60 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x300, wIndex: 0x0, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x302, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x301, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x303, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x0 (OUT), bRequest: 0x9, wValue: 0x1, wIndex: 0x0, wLength: 0
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_SET_CONFIGURATION
+ep0: gfx_out = ep#11
+ep0: gfx_in = ep#12
+ep0: gfx_bulk_out = ep#9
+ep0: gfx_lbulk_out = ep#13
+ep0: bridge_out = ep#14
+ep0: bridge_in = ep#15
+ep0: transferred 0 bytes (out)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x304, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x305, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+[Setup screen] Bottom-Horizontal Line Done
+[Setup screen] Right-Vertical Line Done (Frame Complete)
+
+[TEST] Starting bulk transfer handler + ioctl commands testing
+=============================================================
+
+[TEST] Device found
+[TEST] Device opened successfully
+
+========== GROUP 1: ioctl Configuration ==========
+
+[TEST 1] SISUSB_GET_CONFIG_SIZE
+[TEST 1] OK: config_size = 68 (expected: 68)
+
+[TEST 2] SISUSB_GET_CONFIG
+[TEST 2] OK: sisusb_id = 0x53495355, gfxinit = 1, vramsize = 6 MB
+
+========== GROUP 2: SISUSB_COMMAND operations ==========
+
+[TEST 3] SISUSB_COMMAND - SUCMD_SET
+[TEST 3] OK: SUCMD_SET executed successfully
+
+[TEST 4] SISUSB_COMMAND - SUCMD_GET
+[TEST 4] OK: SUCMD_GET executed, data1 = 0x86
+
+[TEST 5] SISUSB_COMMAND - SUCMD_SETOR
+[TEST 5] OK: SUCMD_SETOR executed successfully
+
+[TEST 6] SISUSB_COMMAND - SUCMD_SETAND
+[TEST 6] OK: SUCMD_SETAND executed successfully
+
+[TEST 7] SISUSB_COMMAND - SUCMD_SETANDOR
+[TEST 7] OK: SUCMD_SETANDOR executed successfully
+
+[TEST 8] SISUSB_COMMAND - SUCMD_SETMASK
+[TEST 8] OK: SUCMD_SETMASK executed successfully
+
+========== GROUP 3: SUCMD_CLRSCR (Small Bulk) ==========
+
+[TEST 9] SISUSB_COMMAND - SUCMD_CLRSCR (small bulk, length <= 0x10000)
+[TEST 9] OK: SUCMD_CLRSCR executed (cleared 0x8000 bytes via small bulk)
+
+========== GROUP 4: SUCMD_CLRSCR Boundary Tests ==========
+
+[TEST 10] SUCMD_CLRSCR (length exceeds VRAM bounds)
+[TEST 10] OK: SUCMD_CLRSCR with truncation executed
+
+[TEST 11] SUCMD_CLRSCR (address below vrambase)
+[TEST 11] OK: SUCMD_CLRSCR correctly rejected (address below vrambase)
+
+[TEST 12] SUCMD_CLRSCR (address above vramsize)
+[TEST 12] OK: SUCMD_CLRSCR correctly rejected (address above vramsize)
+
+[TEST 13] SUCMD_CLRSCR (test overflow protection)
+[TEST 13] OK: SUCMD_CLRSCR with large length handled safely
+
+[TEST] Tests completed: 13 tests
