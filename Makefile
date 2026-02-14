@@ -29,7 +29,8 @@ TARGETS = \
 	sisusbvga-init-gfx-dev \
 	sisusbvga-init-gfx-core-DDR_16Mb \
 	sisusbvga-init-gfx-core-SDR_8Mb \
-	sisusbvga-fops-ioctl
+	sisusbvga-fops-ioctl \
+	sisusbvga-fops-read_write
 
 .PHONY: all clean
 
@@ -100,6 +101,9 @@ sisusbvga-init-gfx-core-SDR_8Mb: src/sisusbvga-init-gfx-core-SDR_8Mb/sisusbvga-i
 
 sisusbvga-fops-ioctl: src/sisusbvga-fops-ioctl/sisusbvga-fops-ioctl.o $(COMMON_OBJ)
 	$(CC) -o src/sisusbvga-fops-ioctl/sisusbvga-fops-ioctl $^ $(CFLAGS) $(LDFLAGS)
+
+sisusbvga-fops-read_write: src/sisusbvga-fops-read_write/sisusbvga-fops-read_write.o $(COMMON_OBJ)
+	$(CC) -o src/sisusbvga-fops-read_write/sisusbvga-fops-read_write $^ $(CFLAGS) $(LDFLAGS)
 
 # Generic rule to compile .c files into .o files
 src/%.o: src/%.c src/usb_gadget_tests.h

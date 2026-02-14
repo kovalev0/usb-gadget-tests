@@ -1,0 +1,214 @@
+[VRAM] Allocated 8 MB of emulated VRAM
+event: connect, length: 0
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x100, wIndex: 0x0, wLength: 64
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_DEVICE
+ep0: transferred 18 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x100, wIndex: 0x0, wLength: 18
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_DEVICE
+ep0: transferred 18 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x200, wIndex: 0x0, wLength: 9
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_CONFIG
+config->wTotalLength: 60
+ep0: transferred 9 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x200, wIndex: 0x0, wLength: 60
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_CONFIG
+config->wTotalLength: 60
+ep0: transferred 60 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x300, wIndex: 0x0, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x302, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x301, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x303, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x0 (OUT), bRequest: 0x9, wValue: 0x1, wIndex: 0x0, wLength: 0
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_SET_CONFIGURATION
+ep0: gfx_out = ep#11
+ep0: gfx_in = ep#12
+ep0: gfx_bulk_out = ep#9
+ep0: gfx_lbulk_out = ep#13
+ep0: bridge_out = ep#14
+ep0: bridge_in = ep#15
+ep0: transferred 0 bytes (out)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x304, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x305, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+[Setup screen] Bottom-Horizontal Line Done
+[Setup screen] Right-Vertical Line Done (Frame Complete)
+
+[TEST] Starting device file operations tests
+[TEST] Device found
+[TEST] Device opened successfully
+
+[TEST 1] Read I/O port (1 byte)
+[TEST 1] OK: Read 1 byte from I/O port 0x44, value = 0x26
+
+[TEST 2] Read I/O port (2 bytes)
+[TEST 2] OK: Read 2 bytes from I/O port 0x44, value = 0x0026
+
+[TEST 3] Read I/O port (4 bytes)
+[TEST 3] OK: Read 4 bytes from I/O port 0x44, value = 0x00000026
+
+[TEST 4] Write I/O port (1 byte)
+[TEST 4] OK: Wrote 1 byte to I/O port 0x45, value = 0xab
+
+[TEST 5] Write I/O port (2 bytes)
+[TEST 5] OK: Wrote 2 bytes to I/O port 0x46, value = 0xabcd
+
+[TEST 6] Write I/O port (4 bytes)
+[TEST 6] OK: Wrote 4 bytes to I/O port 0x48, value = 0xdeadbeef
+
+[TEST 7] Read VRAM
+[TEST 7] OK: Read 16 bytes from VRAM offset 0x1000
+
+[TEST 8] Write VRAM
+[TEST 8] OK: Wrote 256 bytes to VRAM offset 0x2000
+
+[TEST 9] Write PCI config
+[TEST 9] OK: Wrote PCI config offset 0x10, value = 0x12345678
+
+[TEST 10] Read PCI config
+[TEST 10] OK: Read PCI config offset 0x10, value = 0x12345678
+
+[TEST 11] lseek with SEEK_CUR
+[TEST 11] OK: lseek SEEK_CUR, new offset = 0x10001100
+
+[TEST 12] lseek with SEEK_END
+
+[TEST 13] Write VRAM (1 byte)
+[TEST 13] OK: Wrote 1 byte to VRAM offset 0x3000, value = 0xaa
+
+[TEST 14] Write VRAM (2 bytes)
+[TEST 14] OK: Wrote 2 bytes to VRAM offset 0x3010, value = 0xbeef
+
+[TEST 15] Write VRAM (3 bytes)
+[TEST 15] OK: Wrote 3 bytes to VRAM offset 0x3020
+
+[TEST 16] Write VRAM (4 bytes)
+[TEST 16] OK: Wrote 4 bytes to VRAM offset 0x3030, value = 0xdeadc0de
+
+[TEST 17] Read VRAM (1 byte)
+[TEST 17] OK: Read 1 byte from VRAM offset 0x3000, value = 0xaa
+
+[TEST 18] Read VRAM (2 bytes)
+[TEST 18] OK: Read 2 bytes from VRAM offset 0x3010, value = 0xbeef
+
+[TEST 19] Read VRAM (3 bytes)
+[TEST 19] OK: Read 3 bytes from VRAM offset 0x3020, values = 0x12 0x34 0x56
+
+[TEST 20] Read I/O port (invalid 5 bytes)
+[TEST 20] OK: Invalid read size correctly rejected
+
+[TEST 21] Write I/O port (invalid 5 bytes)
+[TEST 21] OK: Invalid write size correctly rejected
+
+[TEST 22] Write PCI config (invalid 2 bytes)
+[TEST 22] OK: Invalid PCI config write size correctly rejected
+
+========== GROUP A: WORD Write (Unaligned) ==========
+
+[TEST 23] Write VRAM WORD (2 bytes) at offset +1
+[TEST 23] OK: Wrote 2 bytes at +1 offset, value = 0xabcd
+
+[TEST 24] Write VRAM WORD (2 bytes) at offset +2
+[TEST 24] OK: Wrote 2 bytes at +2 offset, value = 0x1234
+
+[TEST 25] Write VRAM WORD (2 bytes) at offset +3
+[TEST 25] OK: Wrote 2 bytes at +3 offset, value = 0x5678
+
+========== GROUP B: 24-BIT Write (Unaligned) ==========
+
+[TEST 26] Write VRAM 24-BIT (3 bytes) at offset +1
+[TEST 26] OK: Wrote 3 bytes at +1 offset
+
+[TEST 27] Write VRAM 24-BIT (3 bytes) at offset +2
+[TEST 27] OK: Wrote 3 bytes at +2 offset
+
+[TEST 28] Write VRAM 24-BIT (3 bytes) at offset +3
+[TEST 28] OK: Wrote 3 bytes at +3 offset
+
+========== GROUP C: LONG Write (Unaligned) ==========
+
+[TEST 29] Write VRAM LONG (4 bytes) at offset +1
+[TEST 29] OK: Wrote 4 bytes at +1 offset, value = 0xdeadbeef
+
+[TEST 30] Write VRAM LONG (4 bytes) at offset +2
+[TEST 30] OK: Wrote 4 bytes at +2 offset, value = 0xcafebabe
+
+[TEST 31] Write VRAM LONG (4 bytes) at offset +3
+[TEST 31] OK: Wrote 4 bytes at +3 offset, value = 0x12345678
+
+========== GROUP D: WORD Read (Unaligned) ==========
+
+[TEST 32] Read VRAM WORD (2 bytes) at offset +1
+[TEST 32] OK: Read 2 bytes at +1 offset, value = 0x34cd
+
+[TEST 33] Read VRAM WORD (2 bytes) at offset +2
+[TEST 33] OK: Read 2 bytes at +2 offset, value = 0x7834
+
+[TEST 34] Read VRAM WORD (2 bytes) at offset +3
+[TEST 34] OK: Read 2 bytes at +3 offset, value = 0x5678
+
+========== GROUP E: 24-BIT Read (Unaligned) ==========
+
+[TEST 35] Read VRAM 24-BIT (3 bytes) at offset +1
+[TEST 35] OK: Read 3 bytes at +1 offset, values = 0xaa 0x11 0x44
+
+[TEST 36] Read VRAM 24-BIT (3 bytes) at offset +2
+[TEST 36] OK: Read 3 bytes at +2 offset, values = 0x11 0x44 0x55
+
+[TEST 37] Read VRAM 24-BIT (3 bytes) at offset +3
+[TEST 37] OK: Read 3 bytes at +3 offset, values = 0x44 0x55 0x66
+
+========== GROUP F: LONG Read (Unaligned) ==========
+
+[TEST 38] Read VRAM LONG (4 bytes) at offset +1
+[TEST 38] OK: Read 4 bytes at +1 offset, value = 0x5678beef
+
+[TEST 39] Read VRAM LONG (4 bytes) at offset +2
+[TEST 39] OK: Read 4 bytes at +2 offset, value = 0x345678be
+
+[TEST 40] Read VRAM LONG (4 bytes) at offset +3
+[TEST 40] OK: Read 4 bytes at +3 offset, value = 0x12345678
+
+[TEST] All read/write tests completed (40 tests)
