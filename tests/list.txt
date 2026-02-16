@@ -21,3 +21,4 @@ sisusbvga-init-gfx-core-DDR_16Mb
 sisusbvga-init-gfx-core-SDR_8Mb
 sisusbvga-fops-ioctl
 sisusbvga-fops-read_write
+sisusbvga-fops-svace-int-overflow
