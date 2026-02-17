@@ -22,3 +22,4 @@ sisusbvga-init-gfx-core-SDR_8Mb
 sisusbvga-fops-ioctl
 sisusbvga-fops-read_write
 sisusbvga-fops-svace-int-overflow
+sisusbvga-fops-svace-null-deref
