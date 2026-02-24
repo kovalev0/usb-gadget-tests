@@ -379,15 +379,9 @@ void test_static_analyzer_warning(void) {
 	rv = lseek(devfd, offset, SEEK_SET);
 	if (rv >= 0) {
 		// Try to read into NULL pointer
-		// If this reaches the driver without VFS protection, it will crash
 		rv = read(devfd, bad_ptr, 16);
 		if (rv < 0) {
-			if (errno == EFAULT) {
-				printf("[TEST] Result: Rejected (errno=EFAULT)\n");
-				printf("[TEST] Note: VFS or driver caught NULL, but driver lacks explicit check\n");
-			} else {
-				printf("[TEST] Result: Rejected (errno=%s)\n", strerror(errno));
-			}
+			printf("[TEST] Result: Rejected (errno=%s)\n", strerror(errno));
 		} else {
 			printf("[TEST] UNEXPECTED: NULL accepted, rv=%d\n", rv);
 		}
