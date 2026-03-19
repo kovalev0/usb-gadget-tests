@@ -32,7 +32,8 @@ ALL_AVAILABLE_TARGETS = \
 	sisusbvga-fops-ioctl \
 	sisusbvga-fops-read_write \
 	sisusbvga-fops-svace-int-overflow \
-	sisusbvga-fops-svace-null-deref
+	sisusbvga-fops-svace-null-deref \
+	adutux
 
 # Read active targets from the list file for 'make all'
 TARGETS = $(shell cat tests/list.txt)
