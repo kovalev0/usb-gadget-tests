@@ -1,0 +1,66 @@
+event: connect, length: 0
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x100, wIndex: 0x0, wLength: 64
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_DEVICE
+ep0: transferred 18 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x100, wIndex: 0x0, wLength: 18
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_DEVICE
+ep0: transferred 18 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x200, wIndex: 0x0, wLength: 9
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_CONFIG
+config->wTotalLength: 18
+ep0: transferred 9 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x200, wIndex: 0x0, wLength: 18
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_CONFIG
+config->wTotalLength: 18
+ep0: transferred 18 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x300, wIndex: 0x0, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x302, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x301, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x303, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x0 (OUT), bRequest: 0x9, wValue: 0x1, wIndex: 0x0, wLength: 0
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_SET_CONFIGURATION
+[TEST] Waiting for sysfs device...
+[TEST] Found
+[TEST] port0 = 170
+[TEST] port1 = 85
+[TEST] Writing port0 = 42
+[TEST] port0 after write = 42
+[TEST] Writing port1 = 255
+[TEST] port1 after write = 255
+[TEST] Writing port0 = 300 (expect error)
+[TEST] OK: write 300 rejected (expected)
+[TEST] Done
