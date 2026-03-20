@@ -5,6 +5,7 @@
 #define _USB_GADGET_TESTS_H
 
 #include <assert.h>
+#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <glob.h>

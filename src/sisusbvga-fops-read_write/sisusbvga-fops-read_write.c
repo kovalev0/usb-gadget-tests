@@ -28,8 +28,6 @@
 
 #include "../usb_gadget_tests.h"
 
-#include <dirent.h>
-
 /*----------------------------------------------------------------------*/
 
 static bool verbose = false;
