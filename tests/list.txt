@@ -34,3 +34,4 @@ iowarrior56
 ldusb
 legousbtower
 trancevibrator
+usblcd
