@@ -33,3 +33,4 @@ iowarrior
 iowarrior56
 ldusb
 legousbtower
+trancevibrator
