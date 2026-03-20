@@ -44,7 +44,8 @@ ALL_AVAILABLE_TARGETS = \
 	iowarrior56 \
 	ldusb \
 	legousbtower \
-	trancevibrator
+	trancevibrator \
+	usblcd
 
 # Read active targets from the list file for 'make all'
 TARGETS = $(shell cat tests/list.txt)
