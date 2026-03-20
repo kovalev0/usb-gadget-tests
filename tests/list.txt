@@ -25,3 +25,4 @@ sisusbvga-fops-svace-int-overflow
 adutux
 apple-mfi-fastcharge
 appledisplay
+chaoskey
