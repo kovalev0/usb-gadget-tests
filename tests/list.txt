@@ -36,3 +36,4 @@ legousbtower
 trancevibrator
 usblcd
 usbsevseg
+uss720
