@@ -1,0 +1,83 @@
+event: connect, length: 0
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x100, wIndex: 0x0, wLength: 64
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_DEVICE
+ep0: transferred 18 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x100, wIndex: 0x0, wLength: 18
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_DEVICE
+ep0: transferred 18 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x200, wIndex: 0x0, wLength: 9
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_CONFIG
+config->wTotalLength: 57
+ep0: transferred 9 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x200, wIndex: 0x0, wLength: 57
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_CONFIG
+config->wTotalLength: 57
+ep0: transferred 57 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x300, wIndex: 0x0, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x302, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x301, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x303, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x0 (OUT), bRequest: 0x9, wValue: 0x1, wIndex: 0x0, wLength: 0
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_SET_CONFIGURATION
+ep0: transferred 0 bytes (out)
+event: control, length: 8
+  bRequestType: 0x80 (IN), bRequest: 0x6, wValue: 0x304, wIndex: 0x409, wLength: 255
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_GET_DESCRIPTOR
+  desc = USB_DT_STRING
+ep0: transferred 4 bytes (in)
+event: control, length: 8
+  bRequestType: 0x1 (OUT), bRequest: 0xb, wValue: 0x2, wIndex: 0x0, wLength: 0
+  type = USB_TYPE_STANDARD
+  req = USB_REQ_SET_INTERFACE, altsetting = 2
+ep0: SET_INTERFACE altsetting=2
+ep0: altsetting 2 endpoints (bulk_out=#1 bulk_in=#0)
+[TEST] Waiting for parport registration...
+[TEST] Found
+[TEST] OK: ppdev open
+[TEST] OK: PPCLAIM
+[TEST] OK: frob_control
+[TEST] OK: write_data
+[TEST] OK: read_data = 0x55
+[TEST] OK: enable_irq
+[TEST] OK: disable_irq
+[TEST] OK: read_status = 0x00
+[TEST] OK: data_forward
+[TEST] OK: data_reverse
+[TEST] OK: PPRELEASE
+[TEST] OK: PPCLAIM
+[TEST] Done
