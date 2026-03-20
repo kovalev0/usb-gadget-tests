@@ -33,7 +33,8 @@ ALL_AVAILABLE_TARGETS = \
 	sisusbvga-fops-read_write \
 	sisusbvga-fops-svace-int-overflow \
 	sisusbvga-fops-svace-null-deref \
-	adutux
+	adutux \
+	apple-mfi-fastcharge
 
 # Read active targets from the list file for 'make all'
 TARGETS = $(shell cat tests/list.txt)
