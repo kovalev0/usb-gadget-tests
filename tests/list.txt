@@ -31,3 +31,4 @@ cytherm
 idmouse
 iowarrior
 iowarrior56
+ldusb
