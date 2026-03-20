@@ -47,7 +47,8 @@ ALL_AVAILABLE_TARGETS = \
 	trancevibrator \
 	usblcd \
 	usbsevseg \
-	uss720
+	uss720 \
+	yurex
 
 # Read active targets from the list file for 'make all'
 TARGETS = $(shell cat tests/list.txt)
