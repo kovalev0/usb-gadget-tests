@@ -38,7 +38,8 @@ ALL_AVAILABLE_TARGETS = \
 	appledisplay \
 	chaoskey \
 	cypress_cy7c63 \
-	cytherm
+	cytherm \
+	idmouse
 
 # Read active targets from the list file for 'make all'
 TARGETS = $(shell cat tests/list.txt)

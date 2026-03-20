@@ -28,3 +28,4 @@ appledisplay
 chaoskey
 cypress_cy7c63
 cytherm
+idmouse
