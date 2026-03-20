@@ -37,7 +37,8 @@ ALL_AVAILABLE_TARGETS = \
 	apple-mfi-fastcharge \
 	appledisplay \
 	chaoskey \
-	cypress_cy7c63
+	cypress_cy7c63 \
+	cytherm
 
 # Read active targets from the list file for 'make all'
 TARGETS = $(shell cat tests/list.txt)
