@@ -26,3 +26,4 @@ adutux
 apple-mfi-fastcharge
 appledisplay
 chaoskey
+cypress_cy7c63

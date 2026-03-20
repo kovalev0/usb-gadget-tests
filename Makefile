@@ -36,7 +36,8 @@ ALL_AVAILABLE_TARGETS = \
 	adutux \
 	apple-mfi-fastcharge \
 	appledisplay \
-	chaoskey
+	chaoskey \
+	cypress_cy7c63
 
 # Read active targets from the list file for 'make all'
 TARGETS = $(shell cat tests/list.txt)
