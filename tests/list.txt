@@ -37,3 +37,4 @@ trancevibrator
 usblcd
 usbsevseg
 uss720
+yurex
