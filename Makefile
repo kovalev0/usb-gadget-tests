@@ -42,7 +42,8 @@ ALL_AVAILABLE_TARGETS = \
 	idmouse \
 	iowarrior \
 	iowarrior56 \
-	ldusb
+	ldusb \
+	legousbtower
 
 # Read active targets from the list file for 'make all'
 TARGETS = $(shell cat tests/list.txt)
