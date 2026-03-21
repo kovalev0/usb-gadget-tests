@@ -12,6 +12,9 @@ CONFIG_USB_GADGET=m
 CONFIG_USB_RAW_GADGET=m
 CONFIG_USB_DUMMY_HCD=m
 ```
+
+The `kernel.config` file at the root of the repository contains a Kconfig fragment with all required options.
+
 ## Usage
 ### Compilation
 To compile the USB gadget emulation binaries, run:
