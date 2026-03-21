@@ -211,3 +211,22 @@ void usb_tty_close(int tty_fd) {
 }
 
 /*----------------------------------------------------------------------*/
+
+static void _sigusr1_handler(int sig) { (void)sig; }
+static void _sigalrm_handler(int sig) { (void)sig; exit(0); }
+
+void usb_setup_signals(pthread_t *ep0_tid) {
+	struct sigaction sa;
+
+	sa.sa_handler = _sigusr1_handler;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	sigaction(SIGUSR1, &sa, NULL);
+
+	sa.sa_handler = _sigalrm_handler;
+	sigaction(SIGALRM, &sa, NULL);
+
+	*ep0_tid = pthread_self();
+}
+
+/*----------------------------------------------------------------------*/
