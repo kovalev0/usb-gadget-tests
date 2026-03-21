@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <glob.h>
+#include <poll.h>
 #include <pthread.h>
 #include <signal.h>
 #include <stdatomic.h>
