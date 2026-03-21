@@ -40,7 +40,8 @@ ALL_AVAILABLE_TARGETS = \
 	cypress_cy7c63 \
 	cytherm \
 	idmouse \
-	iowarrior
+	iowarrior \
+	iowarrior56
 
 # Read active targets from the list file for 'make all'
 TARGETS = $(shell cat tests/list.txt)
