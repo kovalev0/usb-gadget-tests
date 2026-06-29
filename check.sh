@@ -1,30 +1,29 @@
 #!/bin/bash
 
-pushd $(dirname "$(readlink -e "$0")") >/dev/null
+TEST_NAME=""
 
-# Check if /dev/raw-gadget exists, otherwise load raw_gadget module
-if [[ ! -e /dev/raw-gadget ]]; then
-    modprobe raw_gadget
-    sleep 1  # Give some time for the device to appear
-    if [[ ! -e /dev/raw-gadget ]]; then
-        echo "Error: /dev/raw-gadget is missing after loading raw_gadget module."
-        exit 1
-    fi
-fi
+show_help() {
+    cat << EOF
+Usage: ${0##*/} [-h] [-l] [-t TEST_NAME]
 
-# Check if /sys/class/udc/dummy_udc.0/uevent contains the expected value
-EXPECTED_UDC="USB_UDC_NAME=dummy_udc"
-if [[ "$(cat /sys/class/udc/dummy_udc.0/uevent 2>/dev/null)" != "$EXPECTED_UDC" ]]; then
-    modprobe dummy_hcd
-    sleep 1  # Allow the module to initialize
-    if [[ "$(cat /sys/class/udc/dummy_udc.0/uevent 2>/dev/null)" != "$EXPECTED_UDC" ]]; then
-        echo "Error: dummy_hcd module did not initialize correctly."
-        exit 1
-    fi
-fi
+Options:
+    -h, --help              Show this help message and exit
+    -l, --list              List available tests
+    -t, --test TEST_NAME    Run test
 
-# Run each test listed in tests/list.txt
-while IFS= read -r test_name; do
+Examples:
+    ./${0##*/}              runs all the tests
+    ./${0##*/} -t keyboard  run only keyboard test
+EOF
+}
+
+list_tests() {
+    cat tests/list.txt
+}
+
+run_test() {
+    pushd $(dirname "$(readlink -e "$0")") >/dev/null
+    test_name=$1
     test_dir="tests/$test_name"
     test_script="$test_dir/run.sh"
     result_file="$test_dir/result"
@@ -75,6 +74,62 @@ while IFS= read -r test_name; do
         echo -e "$test_name \e[31m[Failed]\e[0m"
         diff "$result_outs_dir/out.1" "$result_file"
     fi
-done < tests/list.txt
 
-popd >/dev/null
+    popd >/dev/null
+}
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+    -h|--help)
+        show_help
+        exit 0
+        ;;
+    -l|--list)
+        list_tests
+        exit 0
+        ;;
+    -t|--test)
+        TEST_NAME="$2"
+        shift 2
+        ;;
+    -*|--*)
+        echo "Error: Unknown option $1" >&2
+        show_help
+        exit 1
+        ;;
+    *)
+        echo "Error: Unknown argument $1" >&2
+        show_help
+        exit 1
+        ;;
+    esac
+done
+
+# Check if /dev/raw-gadget exists, otherwise load raw_gadget module
+if [[ ! -e /dev/raw-gadget ]]; then
+    modprobe raw_gadget
+    sleep 1  # Give some time for the device to appear
+    if [[ ! -e /dev/raw-gadget ]]; then
+        echo "Error: /dev/raw-gadget is missing after loading raw_gadget module."
+        exit 1
+    fi
+fi
+
+# Check if /sys/class/udc/dummy_udc.0/uevent contains the expected value
+EXPECTED_UDC="USB_UDC_NAME=dummy_udc"
+if [[ "$(cat /sys/class/udc/dummy_udc.0/uevent 2>/dev/null)" != "$EXPECTED_UDC" ]]; then
+    modprobe dummy_hcd
+    sleep 1  # Allow the module to initialize
+    if [[ "$(cat /sys/class/udc/dummy_udc.0/uevent 2>/dev/null)" != "$EXPECTED_UDC" ]]; then
+        echo "Error: dummy_hcd module did not initialize correctly."
+        exit 1
+    fi
+fi
+
+if [ -n "$TEST_NAME" ]; then
+    run_test $TEST_NAME
+else
+    while IFS= read -r test_name; do
+        run_test $test_name
+    done < tests/list.txt
+fi
